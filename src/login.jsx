@@ -1,7 +1,6 @@
 import React,{useContext, useState} from "react"
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min.js';
-import { Submit } from "@react-login-page/page5";
 import AppContext from "./dataprovider";
 import { useNavigate } from "react-router-dom";
 function Login(){
