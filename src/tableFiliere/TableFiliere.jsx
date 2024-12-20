@@ -9,7 +9,6 @@ function FiliereTable() {
     { nom: "Management Industriel", description: "Gestion et management pour l'industrie.", nbEtudiants: 100 },
   ]);
 
-  // States for managing the modal and form inputs
   const [nomModif, setNomModif] = useState("");
   const [descriptionModif, setDescriptionModif] = useState("");
   const [nbEtudiantsModif, setNbEtudiantsModif] = useState("");
@@ -21,7 +20,6 @@ function FiliereTable() {
   const [descriptionAdd, setDescriptionAdd] = useState("");
   const [nbEtudiantsAdd, setNbEtudiantsAdd] = useState("");
 
-  // Function to open the modal and populate fields
   const modifier = (index) => {
     setNomModif(TFiliere[index].nom);
     setDescriptionModif(TFiliere[index].description);
@@ -30,7 +28,6 @@ function FiliereTable() {
     showModal();
   };
 
-  // Show and hide modal functions
   const showModal = () => {
     setIsModalOpen(true);
   };

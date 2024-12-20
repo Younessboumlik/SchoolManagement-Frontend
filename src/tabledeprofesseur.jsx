@@ -27,7 +27,20 @@ function ProfTable() {
   const [specialiteadd, setSpecialiteadd] = useState("");
   const [emailadd, setEmailadd] = useState("");
 
-  // Function to open the modal and populate fields
+  const [filterNom, setFilterNom] = useState("");
+  const [filterPrenom, setFilterPrenom] = useState("");
+  const [filterSpecialite, setFilterSpecialite] = useState("");
+  const [filterEmail, setFilterEmail] = useState("");
+
+  const filteredProfesseurs = TProfesseur.filter(
+    (prof) =>
+      prof.nom.toLowerCase().includes(filterNom.toLowerCase()) &&
+      prof.prenom.toLowerCase().includes(filterPrenom.toLowerCase()) &&
+      prof.specialite.toLowerCase().includes(filterSpecialite.toLowerCase()) &&
+      prof.email.toLowerCase().includes(filterEmail.toLowerCase())
+  );
+
+
   const modifier = (index) => {
     setNonmodif(TProfesseur[index].nom);
     setPrenonmodif(TProfesseur[index].prenom);
@@ -115,45 +128,89 @@ function ProfTable() {
   hideModaladd()
   }
 
+  const highlightMatch = (text, filter) => {
+    if (!filter) return text; // No filter, return original text
+    const regex = new RegExp(`(${filter})`, 'gi'); // Match filter text
+    return text.replace(regex, '<span class="highlight">$1</span>'); // Wrap match
+  };
+
   return (
     <>
-    
-    <button className="btn btn-info" onClick={showModaladd}>add professeur</button>
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Nom</th>
-            <th>Prénom</th>
-            <th>Spécialité</th>
-            <th>Email</th>
-            <th>edit</th>
-            <th>delete</th>
-
+    <button className="btn btn-info" onClick={showModaladd}>
+      Add Professeur
+    </button>
+    <table className="table">
+      <thead>
+        <tr>
+          <th>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Filter Nom"
+              value={filterNom}
+              onChange={(e) => setFilterNom(e.target.value)}
+            />
+          </th>
+          <th>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Filter Prénom"
+              value={filterPrenom}
+              onChange={(e) => setFilterPrenom(e.target.value)}
+            />
+          </th>
+          <th>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Filter Spécialité"
+              value={filterSpecialite}
+              onChange={(e) => setFilterSpecialite(e.target.value)}
+            />
+          </th>
+          <th>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Filter Email"
+              value={filterEmail}
+              onChange={(e) => setFilterEmail(e.target.value)}
+            />
+          </th>
+          <th></th>
+          <th></th>
+        </tr>
+        <tr>
+          <th>Nom</th>
+          <th>Prénom</th>
+          <th>Spécialité</th>
+          <th>Email</th>
+          <th>Edit</th>
+          <th>Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        {filteredProfesseurs.map((prof, index) => (
+          <tr key={index}>
+            <td dangerouslySetInnerHTML={{ __html: highlightMatch(prof.nom, filterNom) }}></td>
+            <td dangerouslySetInnerHTML={{ __html: highlightMatch(prof.prenom, filterPrenom) }}></td>
+            <td dangerouslySetInnerHTML={{ __html: highlightMatch(prof.specialite, filterSpecialite) }}></td>
+            <td dangerouslySetInnerHTML={{ __html: highlightMatch(prof.email, filterEmail) }}></td>
+            <td>
+              <button onClick={() => modifier(index)} className="btn btn-info">
+                <i className="fa-solid fa-pen"></i>
+              </button>
+            </td>
+            <td>
+              <button onClick={() => deletprof(index)} className="btn btn-danger">
+                <i className="fa-solid fa-trash"></i>
+              </button>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          {TProfesseur.map((prof, index) => (
-            <tr key={index}>
-              <td>{prof.nom}</td>
-              <td>{prof.prenom}</td>
-              <td>{prof.specialite}</td>
-              <td>{prof.email}</td>
-              <td>
-                <button
-                  onClick={() => modifier(index)} className="btn btn-info"
-                >  Modifier </button>
-                
-              </td>
-              <td><button
-                  onClick={() => deletprof(index)}
-                  className="btn btn-danger"
-                >
-                  supprimer
-                </button></td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        ))}
+      </tbody>
+    </table>
 
       {/* React Modal */}
       <Modal show={isModalopen} onHide={hideModal}>

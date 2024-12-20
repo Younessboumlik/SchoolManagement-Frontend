@@ -12,6 +12,15 @@
     border-color: #3498db;
     color: #fff;
   }
+
+  .highlight {
+    background-color: yellow;
+    color: black;
+    font-weight: bold;
+    border-radius: 3px;
+    padding: 2px 4px;
+  }
+  
   
   
   .btn-info:hover {
