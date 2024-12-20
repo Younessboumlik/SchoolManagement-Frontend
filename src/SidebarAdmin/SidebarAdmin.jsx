@@ -35,7 +35,7 @@ const SidebarAdmin = () => {
           </a>
         </li>
         <li>
-          <a href="#" className="nav-item">
+          <a href="filiere" className="nav-item">
             <span className="nav-icon"><i className="fas fa-user-graduate"></i></span>
             <span>Filiere</span>
           </a>

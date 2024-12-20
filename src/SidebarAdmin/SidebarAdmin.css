@@ -14,15 +14,14 @@ body {
   margin-top: 20px;
 }
 
-.title-sidebar{
+.title-sidebar {
   opacity: 0;
 }
 
 .sidebar:hover .title-sidebar {
   opacity: 1;
-  transition-duration: 1s;
+  transition: opacity 0.5s ease; /* Smoother transition for opacity */
 }
-
 
 .nav-item {
   display: flex;
@@ -50,6 +49,7 @@ body {
 .nav-item:hover {
   background: #575b8a;
   padding-left: 30px;
+  transition: background 0.3s ease, padding-left 0.3s ease;
 }
 
 .nav-item:hover i {
@@ -113,6 +113,7 @@ body {
 .sidebar.collapsed {
   width: 80px;
   background: linear-gradient(45deg, #2b2d42, #3a3a52);
+  transition: width 0.3s ease; /* Smoother width change */
 }
 
 .sidebar.collapsed .sidebar-header h3 {
@@ -121,12 +122,8 @@ body {
 
 .sidebar.collapsed .nav-item span,
 .sidebar.collapsed .dropdown-icon {
-  display: none; 
+  display: none;
 }
-
-
-
-
 
 .sidebar.collapsed .dropdown-menu {
   display: none;
@@ -191,6 +188,7 @@ body {
 
 .sidebar.expanded {
   width: 250px; /* Expanded width */
+  transition: width 0.3s ease; /* Smoother width change */
 }
 
 .sidebar .sidebar-header {
