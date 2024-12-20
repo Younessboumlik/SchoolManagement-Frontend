@@ -47,7 +47,7 @@ const SidebarAdmin = () => {
           </a>
         </li>
         <li>
-          <a href="#" className="nav-item">
+          <a href="modeval" className="nav-item">
             <span className="nav-icon"><i className="fa-solid fa-clipboard-check"></i></span>
             <span>Modalite d'evaluation</span>
           </a>

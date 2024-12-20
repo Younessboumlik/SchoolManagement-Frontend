@@ -13,7 +13,6 @@ function ProfTable() {
     { code : 12 ,nom: "Rami", prenom: "Omar", specialite: "Biologie", email: "rami@gmail.com" },
   ]);
 
-  // States for managing the modal and form inputs
   const [nonmodif, setNonmodif] = useState("");
   const [prenonmodif, setPrenonmodif] = useState("");
   const [specialitemodif, setSpecialitemodif] = useState("");
@@ -50,7 +49,6 @@ function ProfTable() {
     showModal();
   };
 
-  // Show and hide modal functions
   const showModal = () => {
     setIsModalopen(true);
   };
@@ -66,7 +64,6 @@ function ProfTable() {
     setIsModaladdopen(false);
   };
 
-  // Form input change handlers
   const handleNonChange = (e) => {
     setNonmodif(e.target.value);
   };
@@ -86,17 +83,14 @@ function ProfTable() {
     setNonadd(e.target.value); // Update the 'nonadd' state with the input value
   };
   
-  // Function to handle 'prenomadd' (Last Name) input change
   const handlePrenomaddChange = (e) => {
     setPrenomadd(e.target.value); // Update the 'prenomadd' state with the input value
   };
   
-  // Function to handle 'specialiteadd' (Specialty) input change
   const handleSpecialiteaddChange = (e) => {
     setSpecialiteadd(e.target.value); // Update the 'specialiteadd' state with the input value
   };
   
-  // Function to handle 'emailadd' (Email) input change
   const handleEmailaddChange = (e) => {
     setEmailadd(e.target.value); // Update the 'emailadd' state with the input value
   };
@@ -196,7 +190,7 @@ function ProfTable() {
             <td dangerouslySetInnerHTML={{ __html: highlightMatch(prof.nom, filterNom) }}></td>
             <td dangerouslySetInnerHTML={{ __html: highlightMatch(prof.prenom, filterPrenom) }}></td>
             <td dangerouslySetInnerHTML={{ __html: highlightMatch(prof.specialite, filterSpecialite) }}></td>
-            <td dangerouslySetInnerHTML={{ __html: highlightMatch(prof.email, filterEmail) }}></td>
+           <td dangerouslySetInnerHTML={{ __html: highlightMatch(prof.email, filterEmail) }}></td>
             <td>
               <button onClick={() => modifier(index)} className="btn btn-info">
                 <i className="fa-solid fa-pen"></i>

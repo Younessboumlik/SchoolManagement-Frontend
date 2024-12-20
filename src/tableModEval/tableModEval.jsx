@@ -1,53 +1,39 @@
 import React, { useState } from "react";
 import Modal from "react-bootstrap/Modal";
-import "./TableFiliere.css";
-import { useEffect } from "react";
+import "./tableModEval.css";
 
-function FiliereTable() {
-  const [TFiliere, setTFiliere] = useState([
-    { nom: "Ingénierie Informatique", description: "Filière spécialisée en informatique et data.", nbEtudiants: 120 },
-    { nom: "Génie Civil", description: "Filière orientée vers les infrastructures.", nbEtudiants: 80 },
-    { nom: "Management Industriel", description: "Gestion et management pour l'industrie.", nbEtudiants: 100 },
+function ModEvalTable() {
+  const [TModEval, setTModEval] = useState([
+    { nom: "Examen", description: "L'examen" },
+    { nom: "TP", description: "Travaux pratique"},
+    { nom: "Projet", description: "Le Projet"},
   ]);
 
   const [nomModif, setNomModif] = useState("");
   const [descriptionModif, setDescriptionModif] = useState("");
-  const [nbEtudiantsModif, setNbEtudiantsModif] = useState("");
   const [indexModif, setIndexModif] = useState(-1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalAddOpen, setIsModalAddOpen] = useState(false);
 
   const [nomAdd, setNomAdd] = useState("");
   const [descriptionAdd, setDescriptionAdd] = useState("");
-  const [nbEtudiantsAdd, setNbEtudiantsAdd] = useState("");
 
 
   const [filterNom, setFilterNom] = useState("");
   const [filterDescription, setfilterDescription] = useState("");
-  const [filterNbrEtud, setfilterNbrEtud] = useState("");
-  const [range, setRange] = useState({ min: 0, max: 0 });
 
-  useEffect(() => {
-    const minVal = Math.min(...TFiliere.map((filiere) => filiere.nbEtudiants));
-    const maxVal = Math.max(...TFiliere.map((filiere) => filiere.nbEtudiants));
-    setRange({ min: minVal, max: maxVal });
-  }, [TFiliere]);
 
-  const filteredFiliere = TFiliere.filter((filiere) => {
-    const isInRange =
-      (!range.min || filiere.nbEtudiants >= parseInt(range.min)) &&
-      (!range.max || filiere.nbEtudiants <= parseInt(range.max));
+
+  const filteredModEval = TModEval.filter((modeeval) => {
     return (
-      filiere.nom.toLowerCase().includes(filterNom.toLowerCase()) &&
-      filiere.description.toLowerCase().includes(filterDescription.toLowerCase()) &&
-      isInRange
+        modeeval.nom.toLowerCase().includes(filterNom.toLowerCase()) &&
+        modeeval.description.toLowerCase().includes(filterDescription.toLowerCase())
     );
   });
 
   const modifier = (index) => {
-    setNomModif(TFiliere[index].nom);
-    setDescriptionModif(TFiliere[index].description);
-    setNbEtudiantsModif(TFiliere[index].nbEtudiants);
+    setNomModif(TModEval[index].nom);
+    setDescriptionModif(TModEval[index].description);
     setIndexModif(index);
     showModal();
   };
@@ -78,10 +64,6 @@ function FiliereTable() {
     setDescriptionModif(e.target.value);
   };
 
-  const handleRangeChange = (e) => {
-    const { name, value } = e.target;
-    setRange((prev) => ({ ...prev, [name]: value }));
-  };
 
 
   const handleNomaddChange = (e) => {
@@ -92,33 +74,28 @@ function FiliereTable() {
     setDescriptionAdd(e.target.value); // Update the 'prenomadd' state with the input value
   };
   
-  // const handleNbEtudiantsaddChange = (e) => {
-  //   setNbEtudiantsAdd(e.target.value); // Update the 'specialiteadd' state with the input value
-  // };
-  
 
   const sauvegarderChanges = () => {
-    setTFiliere(
-      TFiliere.map((filiere, index) => {
+    setTModEval(
+      TModEval.map((modeval, index) => {
         if (index === indexModif) {
           return {
             nom: nomModif,
             description: descriptionModif,
-            nbEtudiants: nbEtudiantsModif,
           };
         }
-        return filiere;
+        return modeval;
       })
     );
     hideModal();
   };
 
-  const deleteFiliere = (index) => {
-    setTFiliere(TFiliere.filter((_, idx) => idx !== index));
+  const deleteModEval = (index) => {
+    setTModEval(TModEval.filter((_, idx) => idx !== index));
   };
 
-  const addFiliere = () => {
-    setTFiliere([...TFiliere, { nom: nomAdd, description: descriptionAdd, nbEtudiants: nbEtudiantsAdd }]);
+  const addModEval = () => {
+    setTModEval([...TModEval, { nom: nomAdd, description: descriptionAdd }]);
     hideModalAdd();
   };
 
@@ -131,7 +108,7 @@ function FiliereTable() {
   return (
     <>
       <button className="btn btn-info" onClick={showModalAdd}>
-        Ajouter une filière
+        Ajouter une Modalite d'evaluation
       </button>
       <table className="table">
         <thead>
@@ -154,56 +131,28 @@ function FiliereTable() {
               onChange={(e) => setfilterDescription(e.target.value)}
             />
           </th>
-          <th>
-
-<td>
-  <div style={{ display: "flex", gap: "10px" }}>
-    <input
-      type="number"
-      className="form-control"
-      placeholder="Min Étudiants"
-      name="min"
-      value={range.min}
-      onChange={handleRangeChange}
-    />
-    <input
-      type="number"
-      className="form-control"
-      placeholder="Max Étudiants"
-      name="max"
-      value={range.max}
-      onChange={handleRangeChange}
-    />
-  </div>
-</td>
-
-
-
-          </th>
           <th></th>
           <th></th>
         </tr>
           <tr>
             <th>Nom de la filière</th>
             <th>Description</th>
-            <th>Nombre d'étudiants</th>
             <th>Modifier</th>
             <th>Supprimer</th>
           </tr>
         </thead>
         <tbody>
-          {filteredFiliere.map((filiere, index) => (
+          {filteredModEval.map((modeeval, index) => (
             <tr key={index}>
-            <td dangerouslySetInnerHTML={{ __html: highlightMatch(filiere.nom, filterNom) }}></td>
-            <td dangerouslySetInnerHTML={{ __html: highlightMatch(filiere.description, filterDescription) }}></td>
-            <td dangerouslySetInnerHTML={{ __html: highlightMatch(filiere.nbEtudiants, filterNbrEtud) }}></td>
+            <td dangerouslySetInnerHTML={{ __html: highlightMatch(modeeval.nom, filterNom) }}></td>
+            <td dangerouslySetInnerHTML={{ __html: highlightMatch(modeeval.description, filterDescription) }}></td>
               <td>
                 <button onClick={() => modifier(index)} className="btn btn-info">
                 <i className="fa-solid fa-pen"></i>
                 </button>
               </td>
               <td>
-                <button onClick={() => deleteFiliere(index)} className="btn btn-danger">
+                <button onClick={() => deleteModEval(index)} className="btn btn-danger">
                 <i className="fa-solid fa-trash"></i>
                 </button>
               </td>
@@ -215,7 +164,7 @@ function FiliereTable() {
       {/* Modal for modification */}
       <Modal show={isModalOpen} onHide={hideModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Modification d'une filière</Modal.Title>
+          <Modal.Title>Modification d'une Modalite d'evaluation</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className="form-group">
@@ -248,7 +197,7 @@ function FiliereTable() {
       {/* Modal for addition */}
       <Modal show={isModalAddOpen} onHide={hideModalAdd}>
         <Modal.Header closeButton>
-          <Modal.Title>Ajouter une filière</Modal.Title>
+          <Modal.Title>Ajouter une Modalite d'evaluation</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className="form-group">
@@ -270,7 +219,7 @@ function FiliereTable() {
           <button className="btn btn-secondary" onClick={hideModalAdd}>
             Fermer
           </button>
-          <button className="btn btn-primary" onClick={addFiliere}>
+          <button className="btn btn-primary" onClick={addModEval}>
             Ajouter
           </button>
         </Modal.Footer>
@@ -279,4 +228,4 @@ function FiliereTable() {
   );
 }
 
-export default FiliereTable;
+export default ModEvalTable;

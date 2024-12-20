@@ -9,6 +9,7 @@ import 'bootstrap/dist/js/bootstrap.min.js';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import SidebarAdmin from './SidebarAdmin/SidebarAdmin';
 import FiliereTable from './tableFiliere/TableFiliere';
+import ModEvalTable from './tableModEval/tableModEval';
 
 const LayoutWithSidebar = ({ children }) => {
   return (
@@ -35,6 +36,16 @@ function App() {
             element={
               <LayoutWithSidebar>
                 <ProfTable />
+               </LayoutWithSidebar>
+            }
+          />
+
+
+          <Route
+            path="/modeval"
+            element={
+              <LayoutWithSidebar>
+                <ModEvalTable />
                </LayoutWithSidebar>
             }
           />
