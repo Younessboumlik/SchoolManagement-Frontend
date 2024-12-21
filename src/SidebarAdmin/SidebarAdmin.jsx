@@ -59,7 +59,7 @@ const SidebarAdmin = () => {
           </a>
         </li>
         <li>
-          <a href="#" className="nav-item">
+          <a href="adminaccount" className="nav-item">
             <span className="nav-icon"><i class="fa-solid fa-user-circle"></i></span>
             <span>Compte utilisateur</span>
           </a>

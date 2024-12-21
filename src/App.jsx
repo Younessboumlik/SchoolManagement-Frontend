@@ -11,6 +11,7 @@ import SidebarAdmin from './SidebarAdmin/SidebarAdmin';
 import FiliereTable from './tableFiliere/TableFiliere';
 import ModEvalTable from './tableModEval/tableModEval';
 import TableProfElement from './tableProfElement/tableProfElement';
+import AdminAccountTable from './tableAdminAccount/tableAdminAccount';
 
 const LayoutWithSidebar = ({ children }) => {
   return (
@@ -47,6 +48,15 @@ function App() {
             element={
               <LayoutWithSidebar>
                 <ModEvalTable />
+               </LayoutWithSidebar>
+            }
+          />
+
+            <Route
+            path="/adminaccount"
+            element={
+              <LayoutWithSidebar>
+                <AdminAccountTable />
                </LayoutWithSidebar>
             }
           />
