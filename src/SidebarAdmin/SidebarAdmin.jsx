@@ -53,7 +53,7 @@ const SidebarAdmin = () => {
           </a>
         </li>
         <li>
-          <a href="#" className="nav-item">
+          <a href="profelement" className="nav-item">
             <span className="nav-icon"><i className="fa-solid fa-user-cog"></i></span>
             <span>Affectation des prof</span>
           </a>
