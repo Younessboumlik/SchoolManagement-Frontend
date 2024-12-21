@@ -4,6 +4,8 @@ import "./tableprofstyle.css"
 import Accordion from 'react-bootstrap/Accordion';
 // Set the app element for accessibility
 // ReactModal.setAppElement("#root");
+import emailjs from "emailjs-com"
+import { Await } from "react-router-dom";
 
 function ProfTable() {
   const [TProfesseur, setTProfesseur] = useState([
@@ -38,7 +40,29 @@ function ProfTable() {
       prof.specialite.toLowerCase().includes(filterSpecialite.toLowerCase()) &&
       prof.email.toLowerCase().includes(filterEmail.toLowerCase())
   );
-
+  const addprof = async ()=>{
+    setTProfesseur([...TProfesseur,{nom:nonadd,prenom:prenomadd,specialite:specialiteadd,email:emailadd}])
+    let pwd = await getgeneratedpwd()
+    emailjs.init('3-yDdMjXAGrpKGg0Q');
+    emailjs.send('service_od8zahb', 'template_tq7clmr', {
+      to_name: emailadd,           // Email address dynamically inserted
+      from_name: 'dd',             // Static 'from_name'
+      message: `This is your new password: ${pwd}`, // Dynamic message
+      buildyourself: 'dd',         // Static text
+      to_email: emailadd           // Email address dynamically inserted
+    })
+      console.log("hhahahahaha")
+    hideModaladd()
+    }
+    const getgeneratedpwd =  async () =>{
+      const url = "http://127.0.0.1:8080/generatepwd"
+      let response
+      await fetch(url).then((res)=>{ return res.json()}).then(data => {response = data.password
+        console.log(response)
+      } )
+      return response
+  }
+  
 
   const modifier = (index) => {
     setNonmodif(TProfesseur[index].nom);
@@ -117,10 +141,10 @@ function ProfTable() {
       TProfesseur.filter((_,idx) => idx !== index)
     );
   }
-  const addprof = ()=>{
-  setTProfesseur([...TProfesseur,{nom:nonadd,prenom:prenomadd,specialite:specialiteadd,email:emailadd}])
-  hideModaladd()
-  }
+  // const addprof = ()=>{
+  // setTProfesseur([...TProfesseur,{nom:nonadd,prenom:prenomadd,specialite:specialiteadd,email:emailadd}])
+  // hideModaladd()
+  // }
 
   const highlightMatch = (text, filter) => {
     if (!filter) return text; // No filter, return original text

@@ -12,7 +12,7 @@ import FiliereTable from './tableFiliere/TableFiliere';
 import ModEvalTable from './tableModEval/tableModEval';
 import TableProfElement from './tableProfElement/tableProfElement';
 import AdminAccountTable from './tableAdminAccount/tableAdminAccount';
-
+import ModulefTable from "./TableModule"
 const LayoutWithSidebar = ({ children }) => {
   return (
     <div style={{ display: 'flex' }}>
@@ -87,7 +87,16 @@ function App() {
               </LayoutWithSidebar>
             }
           />
+          <Route
+            path="/gestionmodule"
+            element={
+              <LayoutWithSidebar>
+                <ModulefTable></ModulefTable>
+              </LayoutWithSidebar>
+            }
+          />
         </Routes>
+        
       </BrowserRouter>
     </AppProvider>
   );
