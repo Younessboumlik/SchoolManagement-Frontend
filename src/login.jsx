@@ -1,103 +1,116 @@
-import React,{useContext, useState} from "react"
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.min.js';
-import AppContext from "./dataprovider";
-import { useNavigate } from "react-router-dom";
-function Login(){
-     const [login,setLogin] = useState("")
-        const [mdps,setMdps] = useState("")
-        const [notvalide,setNotvalid] = useState(false)
-        const {logedin,setLogedin} = useContext(AppContext)
-        const nav = useNavigate()
+import React, { useState } from "react";
+import "./login.css";
+
+function LoginComponent() {
+  const [isProfessor, setIsProfessor] = useState(true);
+  const [notValid, setNotValid] = useState(false);
+
+  const getLogin = (e) => {
+    console.log("Login Input:", e.target.value);
+  };
+
+  const getPassword = (e) => {
+    console.log("Password Input:", e.target.value);
+  };
+
+  const check = () => {
+    setNotValid(true);
+  };
+  
+
+
+  return (
     
-        const getlogin = (e) => {
-         setLogin((l) => e.target.value)
-         console.log(login)
-        }
-        const getmdps = (e) => {
-            setMdps((p) => e.target.value)
-         console.log(mdps)
+    <div className="login-container-special">
+      <div
+        className={`login-card-special ${
+          isProfessor ? "professor-active-special" : "admin-inactive-special"
+        }`}
+      >
+        <h2>Professor Login</h2>
+        {notValid && (
+          <div className="login-alert-special">Invalid credentials</div>
+        )}
+        <div className="login-input-group-special">
+          <label htmlFor="professorEmail" className="login-label-special">
+            Email Address
+          </label>
+          <input
+            type="text"
+            className="login-input-special"
+            id="professorEmail"
+            placeholder="Enter your email"
+            onChange={getLogin}
+          />
+        </div>
+        <div className="login-input-group-special">
+          <label htmlFor="professorPassword" className="login-label-special">
+            Password
+          </label>
+          <input
+            type="password"
+            className="login-input-special"
+            id="professorPassword"
+            placeholder="Enter your password"
+            onChange={getPassword}
+          />
+        </div>
+        <button className="login-button-special" onClick={check}>
+          Login
+        </button>
+        <p
+          onClick={() => setIsProfessor(false)}
+          className="login-switch-text-special"
+        >
+          Switch to Admin Login
+        </p>
+      </div>
 
-           }
-        const checkdata =  async () =>{
-            const url = "http://127.0.0.1:8080/logininfo"
-            var data = {login:login,password:mdps}
-            const response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json", // Set the content type
-                },
-                body: JSON.stringify(data), // Convert your data to JSON
-            })
-            if (!response.ok){
-                setNotvalid(true)
-                console.log("itsgood")
-            }
-            else {
-                setNotvalid(false)
-                console.log("noooooo")
-                setLogedin(true)
-                nav("/admin")
-
-            };
-        }
-        const check = () =>{
-            console.log("i am checking")
-            checkdata()
-            console.log(notvalide)
-        }
-  return(
-    <div className= "">
-        { notvalide && (<div className='alert alert-warning'>le mdps est fausse</div>)
-    }
-    <ul className="nav nav-tabs" id="myTab" role="tablist">
-  <li className="nav-item" role="presentation">
-    <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home-tab-pane" type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true">adminstrateur</button>
-  </li>
-  <li className="nav-item" role="presentation">
-    <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">professeur</button>
-  </li>
-</ul>
-<div className="tab-content" id="myTabContent">
-  <div className="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
- 
-  <div className="mb-3">
-    <label for="exampleInputEmail1" class="form-label">Email address</label>
-    <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" onChange={getlogin}/>
-    <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
-  </div>
-  <div className="mb-3">
-    <label for="exampleInputPassword1" class="form-label">Password</label>
-    <input type="password" class="form-control" id="exampleInputPassword1" onChange={getmdps}/>
-  </div>
-  <div className="mb-3 form-check">
-    <input type="checkbox" class="form-check-input" id="exampleCheck1"/>
-    <label class="form-check-label" for="exampleCheck1">Check me out</label>
-  </div>
-  <button className="btn btn-primary" onClick={check}>Submit</button>
-
+      <div
+        className={`login-card-special ${
+          !isProfessor ? "admin-active-special" : "professor-inactive-special"
+        }`}
+      >
+        <h2>Admin Login</h2>
+        {notValid && (
+          <div className="login-alert-special">Invalid credentials</div>
+        )}
+        <div className="login-input-group-special">
+          <label htmlFor="adminEmail" className="login-label-special">
+            Email Address
+          </label>
+          <input
+            type="text"
+            className="login-input-special"
+            id="adminEmail"
+            placeholder="Enter your email"
+            onChange={getLogin}
+          />
+        </div>
+        <div className="login-input-group-special">
+          <label htmlFor="adminPassword" className="login-label-special">
+            Password
+          </label>
+          <input
+            type="password"
+            className="login-input-special"
+            id="adminPassword"
+            placeholder="Enter your password"
+            onChange={getPassword}
+          />
+        </div>
+        <button className="login-button-special" onClick={check}>
+          Login
+        </button>
+        <p
+          onClick={() => setIsProfessor(true)}
+          className="login-switch-text-special"
+        >
+          Switch to Professor Login
+        </p>
+      </div>
     </div>
-  <div className="tab-pane fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
-  <form>
-  <div className="mb-3">
-    <label for="exampleInputEmail1" class="form-label">Email address</label>
-    <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" onChange={getlogin}/>
-    <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
-  </div>
-  <div className="mb-3">
-    <label for="exampleInputPassword1" class="form-label">Password</label>
-    <input type="password" class="form-control" id="exampleInputPassword1" onChange={getmdps}/>
-  </div>
-  <div className="mb-3 form-check">
-    <input type="checkbox" class="form-check-input" id="exampleCheck1"/>
-    <label class="form-check-label" for="exampleCheck1">Check me out</label>
-  </div>
-  <button type="submit" className="btn btn-primary" onClick={check}>Submit</button>
-</form>
-  </div>
-</div>
-</div>
-  )
+  );
 }
 
-export default Login;
+export default LoginComponent;

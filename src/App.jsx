@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { AppProvider } from './dataprovider';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './login';
@@ -30,7 +29,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* Login route without sidebar */}
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Login/>} />
 
           {/* Routes with sidebar */}
           <Route
@@ -87,6 +86,9 @@ function App() {
               </LayoutWithSidebar>
             }
           />
+
+
+
           <Route
             path="/gestionmodule"
             element={

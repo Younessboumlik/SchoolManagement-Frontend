@@ -41,7 +41,7 @@ const SidebarAdmin = () => {
           </a>
         </li>
         <li>
-          <a href="#" className="nav-item">
+          <a href="gestionmodule" className="nav-item">
             <span className="nav-icon"><i className="fa-solid fa-book-open"></i></span>
             <span>Module et elements</span>
           </a>
