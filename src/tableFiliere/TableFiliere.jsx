@@ -77,44 +77,51 @@ function FiliereTable() {
 
   const addFiliere = async (e) => {
     e.preventDefault();
-    console.log("nomAdd:", nomAdd);
-    console.log("descriptionAdd:", descriptionAdd);
-
+  
     const newFiliere = {
-        nom_filiere: nomAdd,
-        discription: descriptionAdd,
+      nom_filiere: nomAdd,
+      discription: descriptionAdd,
     };
-
+  
     try {
-        const response = await fetch("http://localhost:8081/filiere/addfiliere", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(newFiliere),
-        });
-
-        if (!response.ok) {
-            throw new Error("Failed to add filiere");
-        }
-
-        setTFiliere((prev) => [
-            ...prev,
-            {
-                id: Date.now(),
-                nom_filiere: nomAdd,
-                discription: descriptionAdd,
-                nbEtudiants: 0,
-            },
-        ]);
-        hideModalAdd();
-        setNomAdd("");
-        setDescriptionAdd("");
+      const response = await fetch("http://localhost:8081/filiere/addfiliere", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newFiliere),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to add filiere");
+      }
+  
+      // Fetch the updated list of filieres from the backend
+      const updatedResponse = await fetch("http://localhost:8081/filiere/getfilieres");
+      if (!updatedResponse.ok) {
+        throw new Error("Failed to fetch updated filieres");
+      }
+      const updatedFilieres = await updatedResponse.json();
+  
+      // Map the updated filieres and set state
+      const mappedData = updatedFilieres.map((item) => ({
+        id: item.filiereId,
+        nom_filiere: item.nomFiliere,
+        discription: item.description,
+        nbEtudiants: item.studentCount,
+      }));
+  
+      setTFiliere(mappedData);
+  
+      // Reset form fields and close modal
+      setNomAdd("");
+      setDescriptionAdd("");
+      hideModalAdd();
     } catch (error) {
-        console.error("Error:", error);
+      console.error("Error:", error);
     }
-};
-
+  };
+  
   
 const updateFiliere = async (e) => {
   e.preventDefault();
@@ -138,15 +145,24 @@ const updateFiliere = async (e) => {
       throw new Error(`Failed to update filiere, status: ${response.status}`);
     }
 
-    // Update local state with modified filiere
+    // If the response has content, try to parse it as JSON
+    let updatedData = {};
+    if (response.status !== 204) {  // Status 204 means "No Content"
+      const responseText = await response.text();  // Get raw text (it may not be JSON)
+      if (responseText) {
+        updatedData = JSON.parse(responseText);  // If there's text, try to parse it
+      }
+    }
+
+    // If the response includes data, update the UI
     setTFiliere((prev) =>
       prev.map((filiere, index) =>
         index === indexModif
           ? {
               ...filiere,
-              nom_filiere: updatedFiliere.nom_filiere, // Use snake_case
-              discription: updatedFiliere.discription, // Use snake_case
-              // nbEtudiants: updatedFiliere.studentCount,
+              nom_filiere: updatedData.nom_filiere || nomModif, // Update with the response or fallback
+              discription: updatedData.discription || descriptionModif, // Update with the response or fallback
+              // nbEtudiants: updatedData.studentCount || nbEtudiantsModif,
             }
           : filiere
       )
@@ -154,11 +170,12 @@ const updateFiliere = async (e) => {
 
     // Close the modal after update
     hideModal();
-
   } catch (error) {
     console.error("Error:", error);
   }
 };
+
+
 
 
 
