@@ -1,31 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "react-bootstrap/Modal";
 import "./tableAdminAccount.css";
 
 function AdminAccountTable() {
-  const [adminAccounts, setAdminAccounts] = useState([
-    { id: 1, nom: "Ali", prenom: "Kamal", email: "ali.kamal@example.com" },
-    { id: 2, nom: "Nadia", prenom: "Sami", email: "nadia.sami@example.com" },
-  ]);
-
+  const [adminAccounts, setAdminAccounts] = useState([]);
   const [nomModif, setNomModif] = useState("");
   const [prenomModif, setPrenomModif] = useState("");
   const [emailModif, setEmailModif] = useState("");
   const [indexModif, setIndexModif] = useState(-1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalAddOpen, setIsModalAddOpen] = useState(false);
-
   const [nomAdd, setNomAdd] = useState("");
   const [prenomAdd, setPrenomAdd] = useState("");
   const [emailAdd, setEmailAdd] = useState("");
 
-  const modifier = (index) => {
-    setNomModif(adminAccounts[index].nom);
-    setPrenomModif(adminAccounts[index].prenom);
-    setEmailModif(adminAccounts[index].email);
-    setIndexModif(index);
-    showModal();
-  };
+  // Fetching admin accounts from the API
+  useEffect(() => {
+    fetch("http://localhost:8081/admin/getadmins")
+      .then((response) => response.json()) // Parse the JSON response
+      .then((data) => setAdminAccounts(data)) // Update the state with the fetched data
+      .catch((error) => console.error("Error fetching admin accounts:", error));
+  }, []); // Empty dependency array ensures this effect runs only once
+
+  
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -43,30 +40,114 @@ function AdminAccountTable() {
     setIsModalAddOpen(false);
   };
 
-  const sauvegarderChanges = () => {
-    setAdminAccounts(
-      adminAccounts.map((account, index) => {
-        if (index === indexModif) {
-          return { ...account, nom: nomModif, prenom: prenomModif, email: emailModif };
-        }
-        return account;
-      })
-    );
-    hideModal();
+  const modifier = async (index) => {
+    // Set the state values for the fields you want to modify based on the selected admin
+    setNomModif(adminAccounts[index].nom);
+    setPrenomModif(adminAccounts[index].prenom);
+    setEmailModif(adminAccounts[index].email);
+    setIndexModif(index); // Keep track of the index of the admin being modified
+  
+    // Show the modal where the admin data will be modified
+    showModal();
   };
+  
+  const sauvegarderChanges = async () => {
+    try {
+      const updatedAdmin = {
+        id: adminAccounts[indexModif].id, // Use the admin ID from the selected index
+        nom: nomModif, // Include the updated fields only
+        prenom: prenomModif,
+        email: emailModif,
+      };
+  
+      // Send the PUT request to update the admin account
+      const response = await fetch("http://localhost:8081/admin/updateadmin", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json", // Specify that you're sending JSON
+        },
+        body: JSON.stringify(updatedAdmin), // Convert the updatedAdmin object to a JSON string
+      });
+  
+      // Check if the response is okay (status 200-299)
+      if (response.ok) {
+        console.log("Admin account updated successfully");
+  
+        // Optionally, update the local state to reflect the changes
+        const updatedAdminAccounts = [...adminAccounts];
+    
+        // Update only the modified fields in the local list
+        updatedAdminAccounts[indexModif] = {
+          ...updatedAdminAccounts[indexModif], // Keep other unchanged properties
+          ...updatedAdmin, // Update the modified fields
+        };
+    
+        setAdminAccounts(updatedAdminAccounts); // Update the state with the new admin list
+      } else {
+        console.error("Failed to update admin account");
+      }
+    } catch (error) {
+      console.error("Error updating admin account:", error);
+    }
+  
+    hideModal(); // Close the modal after saving changes
+  };
+  
 
   const deleteAdminAccount = (index) => {
-    setAdminAccounts(adminAccounts.filter((_, idx) => idx !== index));
+    const adminToDelete = adminAccounts[index];
+  
+    // Send DELETE request to API
+    fetch("http://localhost:8081/admin/deleteadmin", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id: adminToDelete.id }),
+    })
+      .then((response) => {
+        if (response.ok) {
+          // Remove the deleted admin from the state
+          setAdminAccounts(adminAccounts.filter((_, idx) => idx !== index));
+        } else {
+          console.error("Error deleting admin account");
+        }
+      })
+      .catch((error) => {
+        console.error("Error deleting admin account:", error);
+      });
   };
+  
 
   const addAdminAccount = () => {
-    setAdminAccounts([
-      ...adminAccounts,
-      { id: Date.now(), nom: nomAdd, prenom: prenomAdd, email: emailAdd },
-    ]);
+    fetch("http://localhost:8081/admin/addadmin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        nom: nomAdd,
+        prenom: prenomAdd,
+        email: emailAdd,
+      }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to add admin account");
+        }
+        setAdminAccounts([
+          ...adminAccounts,
+          { id: Date.now(), nom: nomAdd, prenom: prenomAdd, email: emailAdd },
+        ]);
+      })
+      .catch((error) => {
+        console.error("Error adding admin account:", error);
+      });
+  
     hideModalAdd();
   };
-
+  
+  
   return (
     <>
       <button className="btn btn-info" onClick={showModalAdd}>

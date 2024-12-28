@@ -1,131 +1,200 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "react-bootstrap/Modal";
 import "./TableFiliere.css";
-import { useEffect } from "react";
 
 function FiliereTable() {
-  const [TFiliere, setTFiliere] = useState([
-    { nom: "Ingénierie Informatique", description: "Filière spécialisée en informatique et data.", nbEtudiants: 120 },
-    { nom: "Génie Civil", description: "Filière orientée vers les infrastructures.", nbEtudiants: 80 },
-    { nom: "Management Industriel", description: "Gestion et management pour l'industrie.", nbEtudiants: 100 },
-  ]);
-
+  const [TFiliere, setTFiliere] = useState([]);
   const [nomModif, setNomModif] = useState("");
   const [descriptionModif, setDescriptionModif] = useState("");
   const [nbEtudiantsModif, setNbEtudiantsModif] = useState("");
   const [indexModif, setIndexModif] = useState(-1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalAddOpen, setIsModalAddOpen] = useState(false);
-
   const [nomAdd, setNomAdd] = useState("");
   const [descriptionAdd, setDescriptionAdd] = useState("");
-  const [nbEtudiantsAdd, setNbEtudiantsAdd] = useState("");
-
-
   const [filterNom, setFilterNom] = useState("");
-  const [filterDescription, setfilterDescription] = useState("");
-  const [filterNbrEtud, setfilterNbrEtud] = useState("");
+  const [filterDescription, setFilterDescription] = useState("");
   const [range, setRange] = useState({ min: 0, max: 0 });
 
+  // Fetch data from API
   useEffect(() => {
-    const minVal = Math.min(...TFiliere.map((filiere) => filiere.nbEtudiants));
-    const maxVal = Math.max(...TFiliere.map((filiere) => filiere.nbEtudiants));
-    setRange({ min: minVal, max: maxVal });
-  }, [TFiliere]);
+    const fetchFiliere = async () => {
+      try {
+        const response = await fetch("http://localhost:8081/filiere/getfilieres");
+        if (!response.ok) {
+          throw new Error(`Failed to fetch: ${response.statusText}`);
+        }
+        const data = await response.json();
+        console.log("Fetched data:", data);
+        const mappedData = data.map((item) => ({
+          id: item.filiereId,
+          nom_filiere: item.nomFiliere,
+          discription: item.description,
+          nbEtudiants: item.studentCount,
+        }));
+        setTFiliere(mappedData);
+      } catch (error) {
+        console.error("Error fetching filieres:", error);
+      }
+    };
 
-  const filteredFiliere = TFiliere.filter((filiere) => {
+    fetchFiliere();
+  }, []);
+
+  // Filter the data based on the filters
+  const filteredFiliere = (TFiliere || []).filter((filiere) => {
+    if (!filiere || !filiere.nom_filiere || !filiere.discription) return false;
+
     const isInRange =
       (!range.min || filiere.nbEtudiants >= parseInt(range.min)) &&
       (!range.max || filiere.nbEtudiants <= parseInt(range.max));
+
     return (
-      filiere.nom.toLowerCase().includes(filterNom.toLowerCase()) &&
-      filiere.description.toLowerCase().includes(filterDescription.toLowerCase()) &&
+      filiere.nom_filiere.toLowerCase().includes(filterNom.toLowerCase()) &&
+      filiere.discription.toLowerCase().includes(filterDescription.toLowerCase()) &&
       isInRange
     );
   });
 
   const modifier = (index) => {
-    setNomModif(TFiliere[index].nom);
-    setDescriptionModif(TFiliere[index].description);
+    setNomModif(TFiliere[index].nom_filiere);
+    setDescriptionModif(TFiliere[index].discription);
     setNbEtudiantsModif(TFiliere[index].nbEtudiants);
     setIndexModif(index);
     showModal();
   };
 
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
+  const showModal = () => setIsModalOpen(true);
+  const hideModal = () => setIsModalOpen(false);
 
-  const hideModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const showModalAdd = () => {
-    setIsModalAddOpen(true);
-  };
-
-  const hideModalAdd = () => {
-    setIsModalAddOpen(false);
-  };
-
-  
-
-  const handleNomChange = (e) => {
-    setNomModif(e.target.value);
-  };
-
-  const handleDescriptionChange = (e) => {
-    setDescriptionModif(e.target.value);
-  };
+  const showModalAdd = () => setIsModalAddOpen(true);
+  const hideModalAdd = () => setIsModalAddOpen(false);
 
   const handleRangeChange = (e) => {
     const { name, value } = e.target;
     setRange((prev) => ({ ...prev, [name]: value }));
   };
 
+  const addFiliere = async (e) => {
+    e.preventDefault();
+    console.log("nomAdd:", nomAdd);
+    console.log("descriptionAdd:", descriptionAdd);
 
-  const handleNomaddChange = (e) => {
-    setNomAdd(e.target.value); // Update the 'nonadd' state with the input value
-  };
-  
-  const handleDescriptionaddChange = (e) => {
-    setDescriptionAdd(e.target.value); // Update the 'prenomadd' state with the input value
-  };
-  
-  // const handleNbEtudiantsaddChange = (e) => {
-  //   setNbEtudiantsAdd(e.target.value); // Update the 'specialiteadd' state with the input value
-  // };
-  
+    const newFiliere = {
+        nom_filiere: nomAdd,
+        discription: descriptionAdd,
+    };
 
-  const sauvegarderChanges = () => {
-    setTFiliere(
-      TFiliere.map((filiere, index) => {
-        if (index === indexModif) {
-          return {
-            nom: nomModif,
-            description: descriptionModif,
-            nbEtudiants: nbEtudiantsModif,
-          };
+    try {
+        const response = await fetch("http://localhost:8081/filiere/addfiliere", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(newFiliere),
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to add filiere");
         }
-        return filiere;
-      })
+
+        setTFiliere((prev) => [
+            ...prev,
+            {
+                id: Date.now(),
+                nom_filiere: nomAdd,
+                discription: descriptionAdd,
+                nbEtudiants: 0,
+            },
+        ]);
+        hideModalAdd();
+        setNomAdd("");
+        setDescriptionAdd("");
+    } catch (error) {
+        console.error("Error:", error);
+    }
+};
+
+  
+const updateFiliere = async (e) => {
+  e.preventDefault();
+  const updatedFiliere = {
+    id: TFiliere[indexModif].id, // Include ID for update
+    nom_filiere: nomModif, // Use snake_case
+    discription: descriptionModif, // Use snake_case
+    // studentCount: nbEtudiantsModif,
+  };
+
+  try {
+    const response = await fetch("http://localhost:8081/filiere/updatefiliere", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedFiliere),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to update filiere, status: ${response.status}`);
+    }
+
+    // Update local state with modified filiere
+    setTFiliere((prev) =>
+      prev.map((filiere, index) =>
+        index === indexModif
+          ? {
+              ...filiere,
+              nom_filiere: updatedFiliere.nom_filiere, // Use snake_case
+              discription: updatedFiliere.discription, // Use snake_case
+              // nbEtudiants: updatedFiliere.studentCount,
+            }
+          : filiere
+      )
     );
+
+    // Close the modal after update
     hideModal();
-  };
 
-  const deleteFiliere = (index) => {
-    setTFiliere(TFiliere.filter((_, idx) => idx !== index));
-  };
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
 
-  const addFiliere = () => {
-    setTFiliere([...TFiliere, { nom: nomAdd, description: descriptionAdd, nbEtudiants: nbEtudiantsAdd }]);
-    hideModalAdd();
+
+
+  const deleteFiliere = async (index) => {
+    const filiereToDelete = TFiliere[index];
+
+    if (!filiereToDelete || !filiereToDelete.id) {
+      console.error("ID is missing for the filiere to delete");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:8081/filiere/deletefiliere", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: filiereToDelete.id }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to delete filiere: ${response.status}, ${errorText}`);
+      }
+
+      setTFiliere((prev) => prev.filter((_, idx) => idx !== index));
+      console.log("Filiere deleted successfully");
+    } catch (error) {
+      console.error("Error deleting filiere:", error);
+    }
   };
 
   const highlightMatch = (text, filter) => {
-    if (!filter) return text; // No filter, return original text
-    const regex = new RegExp(`(${filter})`, 'gi'); // Match filter text
-    return text.replace(regex, '<span class="highlight">$1</span>'); // Wrap match
+    if (!filter) return text;
+    const regex = new RegExp(`(${filter})`, "gi");
+    return text.replace(regex, '<span class="highlight">$1</span>');
   };
 
   return (
@@ -135,54 +204,48 @@ function FiliereTable() {
       </button>
       <table className="table">
         <thead>
-        <tr>
-          <th>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Filter Nom"
-              value={filterNom}
-              onChange={(e) => setFilterNom(e.target.value)}
-            />
-          </th>
-          <th>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Filter Description"
-              value={filterDescription}
-              onChange={(e) => setfilterDescription(e.target.value)}
-            />
-          </th>
-          <th>
-
-<td>
-  <div style={{ display: "flex", gap: "10px" }}>
-    <input
-      type="number"
-      className="form-control"
-      placeholder="Min Étudiants"
-      name="min"
-      value={range.min}
-      onChange={handleRangeChange}
-    />
-    <input
-      type="number"
-      className="form-control"
-      placeholder="Max Étudiants"
-      name="max"
-      value={range.max}
-      onChange={handleRangeChange}
-    />
-  </div>
-</td>
-
-
-
-          </th>
-          <th></th>
-          <th></th>
-        </tr>
+          <tr>
+            <th>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Filter Nom"
+                value={filterNom}
+                onChange={(e) => setFilterNom(e.target.value)}
+              />
+            </th>
+            <th>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Filter Description"
+                value={filterDescription}
+                onChange={(e) => setFilterDescription(e.target.value)}
+              />
+            </th>
+            <th>
+              <div style={{ display: "flex", gap: "10px" }}>
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="Min Étudiants"
+                  name="min"
+                  value={range.min}
+                  onChange={handleRangeChange}
+                />
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="Max Étudiants"
+                  name="max"
+                  value={range.max}
+                  onChange={handleRangeChange}
+                />
+              </div>
+            </th>
+            <th></th>
+            <th></th>
+          </tr>
           <tr>
             <th>Nom de la filière</th>
             <th>Description</th>
@@ -194,17 +257,17 @@ function FiliereTable() {
         <tbody>
           {filteredFiliere.map((filiere, index) => (
             <tr key={index}>
-            <td dangerouslySetInnerHTML={{ __html: highlightMatch(filiere.nom, filterNom) }}></td>
-            <td dangerouslySetInnerHTML={{ __html: highlightMatch(filiere.description, filterDescription) }}></td>
-            <td dangerouslySetInnerHTML={{ __html: highlightMatch(filiere.nbEtudiants, filterNbrEtud) }}></td>
+              <td dangerouslySetInnerHTML={{ __html: highlightMatch(filiere.nom_filiere, filterNom) }}></td>
+              <td dangerouslySetInnerHTML={{ __html: highlightMatch(filiere.discription, filterDescription) }}></td>
+              <td>{filiere.nbEtudiants}</td>
               <td>
                 <button onClick={() => modifier(index)} className="btn btn-info">
-                <i className="fa-solid fa-pen"></i>
+                  <i className="fa-solid fa-pen"></i>
                 </button>
               </td>
               <td>
                 <button onClick={() => deleteFiliere(index)} className="btn btn-danger">
-                <i className="fa-solid fa-trash"></i>
+                  <i className="fa-solid fa-trash"></i>
                 </button>
               </td>
             </tr>
@@ -212,68 +275,76 @@ function FiliereTable() {
         </tbody>
       </table>
 
-      {/* Modal for modification */}
       <Modal show={isModalOpen} onHide={hideModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>Modification d'une filière</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="form-group">
-            <label>Nom</label>
-            <input
-              className="form-control"
-              value={nomModif}
-              onChange={(e) => setNomModif(e.target.value)}
-            />
-          </div>
-          <div className="form-group">
-            <label>Description</label>
-            <input
-              className="form-control"
-              value={descriptionModif}
-              onChange={(e) => setDescriptionModif(e.target.value)}
-            />
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <button className="btn btn-secondary" onClick={hideModal}>
-            Fermer
-          </button>
-          <button className="btn btn-primary" onClick={sauvegarderChanges}>
-            Sauvegarder
-          </button>
-        </Modal.Footer>
+        <form onSubmit={updateFiliere}>
+          <Modal.Header closeButton>
+            <Modal.Title>Modification d'une filière</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div className="form-group">
+              <label>Nom</label>
+              <input
+                className="form-control"
+                value={nomModif}
+                onChange={(e) => setNomModif(e.target.value)}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>Description</label>
+              <input
+                className="form-control"
+                value={descriptionModif}
+                onChange={(e) => setDescriptionModif(e.target.value)}
+                required
+              />
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <button type="button" className="btn btn-secondary" onClick={hideModal}>
+              Fermer
+            </button>
+            <button type="submit" className="btn btn-primary">
+              Sauvegarder
+            </button>
+          </Modal.Footer>
+        </form>
       </Modal>
 
-      {/* Modal for addition */}
       <Modal show={isModalAddOpen} onHide={hideModalAdd}>
-        <Modal.Header closeButton>
-          <Modal.Title>Ajouter une filière</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="form-group">
-            <label>Nom</label>
-            <input
-              className="form-control"
-              onChange={(e) => setNomAdd(e.target.value)}
-            />
-          </div>
-          <div className="form-group">
-            <label>Description</label>
-            <input
-              className="form-control"
-              onChange={(e) => setDescriptionAdd(e.target.value)}
-            />
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <button className="btn btn-secondary" onClick={hideModalAdd}>
-            Fermer
-          </button>
-          <button className="btn btn-primary" onClick={addFiliere}>
-            Ajouter
-          </button>
-        </Modal.Footer>
+        <form onSubmit={addFiliere}>
+          <Modal.Header closeButton>
+            <Modal.Title>Ajouter une filière</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div className="form-group">
+              <label>Nom</label>
+              <input
+                className="form-control"
+                value={nomAdd}
+                onChange={(e) => setNomAdd(e.target.value)}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>Description</label>
+              <input
+                className="form-control"
+                value={descriptionAdd}
+                onChange={(e) => setDescriptionAdd(e.target.value)}
+                required
+              />
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <button type="button" className="btn btn-secondary" onClick={hideModalAdd}>
+              Fermer
+            </button>
+            <button type="submit" className="btn btn-primary">
+              Ajouter
+            </button>
+          </Modal.Footer>
+        </form>
       </Modal>
     </>
   );
