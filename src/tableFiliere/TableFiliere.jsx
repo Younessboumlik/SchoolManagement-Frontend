@@ -126,7 +126,7 @@ function FiliereTable() {
 const updateFiliere = async (e) => {
   e.preventDefault();
   const updatedFiliere = {
-    id: TFiliere[indexModif].id, // Include ID for update
+    code: TFiliere[indexModif].id, // Include ID for update
     nom_filiere: nomModif, // Use snake_case
     discription: descriptionModif, // Use snake_case
     // studentCount: nbEtudiantsModif,
@@ -193,8 +193,10 @@ const updateFiliere = async (e) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ id: filiereToDelete.id }),
+        body: JSON.stringify({ code: filiereToDelete.id }),
       });
+
+      console.log(index);
 
       if (!response.ok) {
         const errorText = await response.text();

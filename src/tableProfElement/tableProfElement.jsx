@@ -9,7 +9,7 @@ function ElementModuleTable() {
     { module: "Chimie Organique", description: "Chimie avancée", professeur: "Dr. Omar Rami" },
   ]);
 
-  const [professors, setProfessors] = useState(["El gherabi", "Saadi"]);
+  const [professors, setProfessors] = useState([]);
   const [modules, setModules] = useState([]);
 
   const [moduleModif, setModuleModif] = useState("");
@@ -27,20 +27,31 @@ function ElementModuleTable() {
 
   useEffect(() => {
     const fetchProfessors = async () => {
-      const response = await fetch("https://api.example.com/professors");
+      const response = await fetch("http://localhost:8081/profelement/getdispoprof");
       const data = await response.json();
-      setProfessors(data); // Example: [{ id: 1, name: "Dr. Ali Kamal" }]
+      setProfessors(data); // Professors: [{ code: 1, nameProf: "Dr. Ali Kamal" }]
     };
-
+  
     const fetchModules = async () => {
-      const response = await fetch("https://api.example.com/modules");
+      const response = await fetch("http://localhost:8081/profelement/getdispoelem");
       const data = await response.json();
-      setModules(data); // Example: [{ id: 1, name: "Mathématiques" }]
+      const modulesList = data.map((module) => ({
+        code: module.code,       
+        name: module.nemodule, 
+        coef: module.coef,
+        estValide: module.estValide,
+        nemodule: module.nemodule,
+        module: module.module,
+      }));
+      setModules(modulesList); 
     };
-
+  
     fetchProfessors();
     fetchModules();
   }, []);
+  
+  
+  
 
   const filteredElementModule = TElementModule.filter((elementModule) => {
     return (
@@ -73,33 +84,115 @@ function ElementModuleTable() {
     setIsModalAddOpen(false);
   };
 
-  const sauvegarderChanges = () => {
-    setTElementModule(
-      TElementModule.map((elementModule, index) => {
-        if (index === indexModif) {
-          return {
-            ...elementModule,
-            module: moduleModif,
-            professeur: professeurModif,
-          };
-        }
-        return elementModule;
-      })
-    );
-    hideModal();
-  };
+
 
   const deleteElementModule = (index) => {
     setTElementModule(TElementModule.filter((_, idx) => idx !== index));
   };
 
-  const addElementModule = () => {
-    setTElementModule([
-      ...TElementModule,
-      { module: moduleAdd, description: "Description par défaut", professeur: professeurAdd },
-    ]);
-    hideModalAdd();
+  const addElementModule = async () => {
+    if (!moduleAdd || !professeurAdd) {
+      alert("Veuillez sélectionner un module et un professeur.");
+      return;
+    }
+  
+    const selectedModule = modules.find((mod) => mod.name === moduleAdd);
+    const selectedProfessor = professors.find((prof) => prof.nameProf === professeurAdd);
+  
+    if (!selectedModule || !selectedProfessor) {
+      alert("Module ou professeur sélectionné non valide.");
+      return;
+    }
+  
+    // Prepare the payload
+    const payload = {
+      professeur: {
+        code: selectedProfessor.code,
+      },
+      smodule: {
+        code: selectedModule.code,
+        coef: selectedModule.coef,
+        description: "Default Description",
+        nemodule:  selectedModule.nemodule,
+        module: selectedModule.module
+      },
+    };
+  
+    try {
+      const response = await fetch("http://localhost:8081/profelement/affectprofelement", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Erreur lors de l'affectation: ${response.statusText}`);
+      }
+  
+      // Handle the response
+      // const data = await response.json();
+      // console.log("Affectation réussie:", data);
+  
+      // Update the local table to reflect the new addition
+      setTElementModule((prev) => [
+        ...prev,
+        {
+          module: selectedModule.name,
+          description: "Description par défaut",
+          professeur: selectedProfessor.nameProf,
+        },
+      ]);
+  
+      hideModalAdd();
+    } catch (error) {
+      console.error("Erreur:", error);
+      alert("Échec de l'affectation.");
+    }
   };
+  
+  
+  const sauvegarderChanges = async () => {
+    try {
+      const payload = {
+        professeur: { code: professors.find((prof) => prof.nameProf === professeurModif)?.code },
+        smodule: { 
+          code: modules.find((mod) => mod.name === moduleModif)?.code,
+          coefficient: 1 // Add coefficient or other values as needed
+        }
+      };
+  
+      const response = await fetch("http://localhost:8081/profelement/affectprofelement", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to update professor assignment");
+      }
+  
+      setTElementModule(
+        TElementModule.map((elementModule, index) => {
+          if (index === indexModif) {
+            return {
+              ...elementModule,
+              module: moduleModif,
+              professeur: professeurModif,
+            };
+          }
+          return elementModule;
+        })
+      );
+      hideModal();
+    } catch (error) {
+      console.error("Error updating module:", error);
+    }
+  };
+  
 
   return (
     <>
@@ -182,7 +275,7 @@ function ElementModuleTable() {
             >
               <option value="">-- Choisir un Module --</option>
               {modules.map((mod) => (
-                <option key={mod.id} value={mod.name}>
+                <option key={mod.code} value={mod.name}>
                   {mod.name}
                 </option>
               ))}
@@ -197,8 +290,8 @@ function ElementModuleTable() {
             >
               <option value="">-- Choisir un Professeur --</option>
               {professors.map((prof) => (
-                <option key={prof.id} value={prof.name}>
-                  {prof.name}
+                <option key={prof.code} value={prof.nameProf}>
+                  {prof.nameProf}
                 </option>
               ))}
             </select>
@@ -228,7 +321,7 @@ function ElementModuleTable() {
             >
               <option value="">-- Choisir un Module --</option>
               {modules.map((mod) => (
-                <option key={mod.id} value={mod.name}>
+                <option key={mod.code} value={mod.name}>
                   {mod.name}
                 </option>
               ))}
@@ -242,11 +335,12 @@ function ElementModuleTable() {
             >
               <option value="">-- Choisir un Professeur --</option>
               {professors.map((prof) => (
-                <option key={prof} value={prof}>
-                  {prof}
+                <option key={prof.code} value={prof.nameProf}>
+                  {prof.nameProf}
                 </option>
               ))}
             </select>
+
           </div>
         </Modal.Body>
         <Modal.Footer>

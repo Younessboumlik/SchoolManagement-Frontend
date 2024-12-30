@@ -54,7 +54,7 @@ function AdminAccountTable() {
   const sauvegarderChanges = async () => {
     try {
       const updatedAdmin = {
-        id: adminAccounts[indexModif].id, // Use the admin ID from the selected index
+        code: adminAccounts[indexModif].code, // Use the admin ID from the selected index
         nom: nomModif, // Include the updated fields only
         prenom: prenomModif,
         email: emailModif,
@@ -103,7 +103,7 @@ function AdminAccountTable() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id: adminToDelete.id }),
+      body: JSON.stringify({ code: adminToDelete.code }),
     })
       .then((response) => {
         if (response.ok) {
@@ -164,7 +164,7 @@ function AdminAccountTable() {
         </thead>
         <tbody>
           {adminAccounts.map((account, index) => (
-            <tr key={account.id}>
+            <tr key={account.code}>
               <td>{account.nom}</td>
               <td>{account.prenom}</td>
               <td>{account.email}</td>
