@@ -1,157 +1,304 @@
-/* General Button Styles */
-.btn {
-    border-radius: 5px;
-    padding: 8px 15px;
-    font-size: 14px;
-    margin: 5px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-  }
-  
-  .btn-info {
-    background-color: #3498db;
-    border-color: #3498db;
-    color: #fff;
-  }
-  
+/* General Styles */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+}
 
-  .highlight {
-    background-color: yellow;
-    color: black;
-    font-weight: bold;
-    border-radius: 3px;
-    padding: 1px 1px;
-  }
-  .btn-info:hover {
-    background-color: #2980b9;
+/* Container Styles */
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+/* Button Styles */
+.btn {
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 1rem;
+  margin: 5px;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn:focus{
+  outline:none;
+}
+.btn-info {
+  background-color: #3498db;
+  color: #fff;
+    border-color: #3498db;
+}
+
+.btn-info:hover {
+  background-color: #2980b9;
     border-color: #2980b9;
-    transform: translateY(-2px);
-  }
-  
-  .btn-danger {
-    background-color: #e74c3c;
-    border-color: #e74c3c;
-    color: #fff;
-  }
-  
-  .btn-danger:hover {
-    background-color: #c0392b;
-    border-color: #c0392b;
-    transform: translateY(-2px);
-  }
-  
-  .btn-secondary {
-    background-color: #aaa;
-    border-color: #aaa;
-    color: #fff;
-  }
-  
-  .btn-secondary:hover {
-    background-color: #888;
-    border-color: #888;
-  }
-  
-  /* Add Button (Main CTA) */
-  .btn-add {
-    background-color: #007bff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-danger {
+  background-color: #e74c3c;
+  color: #fff;
+      border-color: #e74c3c;
+}
+
+.btn-danger:hover {
+  background-color: #c0392b;
+      border-color: #c0392b;
+  transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-secondary {
+  background-color: #95a5a6;
+    border-color: #95a5a6;
+  color: #fff;
+}
+
+.btn-secondary:hover {
+  background-color: #7f8c8d;
+   border-color: #7f8c8d;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary {
+  background-color: #2ecc71;
+  color: #fff;
+  border-color: #2ecc71;
+}
+
+.btn-primary:hover {
+  background-color: #27ae60;
+    border-color: #27ae60;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Add Button (Main CTA) */
+.btn-add {
+  background-color: #007bff;
     border-color: #007bff;
-    padding: 10px 20px;
-    font-size: 16px;
-    border-radius: 8px;
-    color: #fff;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+  padding: 12px 22px;
+  font-size: 1.1rem;
+  border-radius: 10px;
+  color: #fff;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.btn-add:hover {
+  background-color: #0056b3;
+  border-color: #004085;
+  transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+}
+ /* Filter Styles */
+.filter-container {
+    display: flex;
+    justify-content: flex-start; /* Added to ensure the correct spacing */
+      gap: 15px;
+     flex-wrap: wrap; /* Enable wrapping for smaller screens */
+    margin-bottom: 10px;
+}
+/*filter input style */
+.form-control-filter{
+  flex: 1 0 150px; /* To distribute available space */
+  min-width: 150px;
+     padding: 10px;
+  margin: 5px 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+        background: #fff;
+
+}
+.form-control-filter:focus {
+   border-color: #3498db;
+     outline: none;
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+
+}
+
+
+/* Table Styling */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table th,
+.table td {
+  padding: 14px;
+  text-align: left;
+  border-bottom: 1px solid #ecf0f1;
+  transition: background-color 0.2s ease;
+}
+
+.table th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+    font-size: 1rem;
+  text-transform: uppercase;
+}
+
+.table tr:hover {
+  background-color: #f5f5f5;
+}
+.table tbody tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+/* Modal Styling */
+.modal-content {
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  background-color: #3498db;
+  color: white;
+  font-weight: bold;
+  border-bottom: none;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+.modal-title {
+  font-size: 1.2rem;
+}
+
+.modal-footer {
+  border-top: 1px solid #ecf0f1;
+  display: flex;
+    padding: 15px 20px;
+  justify-content: flex-end;
+}
+
+.modal-footer button {
+  margin-left: 10px;
+}
+
+.modal-body .form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+    font-size: 1.05rem;
+}
+
+.form-control {
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 1rem;
+  border: 1px solid #ecf0f1;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #3498db;
+  outline: none;
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+}
+/* Modal Error Styling */
+.modal-header-error {
+      background-color: #e74c3c !important;
+        color: white;
+      font-weight: bold;
+        border-bottom: none !important;
+        border-top-left-radius: 15px;
+      border-top-right-radius: 15px;
+
   }
-  
-  .btn-add:hover {
-    background-color: #0056b3;
-    border-color: #004085;
-    transform: translateY(-2px);
-  }
-  
-  /* Table Styling */
+    .modal-body-error {
+      color: #e74c3c;
+     padding: 12px;
+       font-weight: bold;
+    }
+/*react-select styles*/
+.react-select-container{
+    border-radius: 10px;
+    border: 1px solid #ecf0f1;
+    padding: 6px;
+     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+     transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.react-select-container:focus-within{
+  border-color: #3498db;
+  outline: none;
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+}
+
+.react-select-container .react-select__control {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    padding: 2px !important;
+    border-radius: 0px !important;
+    min-height: 20px !important;
+
+}
+.react-select-container .react-select__value-container {
+    padding: 0px !important;
+    margin: 0px !important;
+}
+.react-select-container .react-select__indicators{
+    padding: 0px !important;
+     margin: 0px !important;
+}
+.react-select-container .react-select__indicator{
+    padding: 0px !important;
+     margin: 0px !important;
+}
+.react-select-container .react-select__indicator-separator{
+    display: none !important;
+     margin: 0px !important;
+}
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .container{
+        padding: 0 10px;
+    }
   .table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    font-size: 0.9rem;
   }
-  
   .table th,
   .table td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
+    padding: 10px;
   }
-  
-  .table th {
-    background-color: #f1f1f1;
-    font-weight: bold;
-    text-transform: uppercase;
+.filter-container{
+    flex-direction: column;
+    align-items: stretch; /* Each item will take a row */
+        gap: 0px; /* No gap if you have this style, set it to anything in case you need gap*/
+
+}
+.form-control-filter{
+    flex: 1 0 auto;
+    min-width: auto;
+
+}
+
+  .btn {
+    font-size: 0.9rem;
+    padding: 8px 15px;
   }
-  
-  .table tr:hover {
-    background-color: #f9f9f9;
+  .modal-content{
+        margin: 0 10px;
   }
-  
-  /* Modal Styling */
-  .modal-content {
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+ .modal-dialog {
+        max-width: 95%; /* Modal takes more space */
+        margin: 1.75rem auto; /* Center modal */
   }
-  
-  .modal-header {
-    background-color: #007bff;
-    color: white;
-    font-weight: bold;
-    border-bottom: none;
-  }
-  
-  .modal-footer {
-    border-top: 1px solid #ddd;
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  .modal-body .form-group {
-    margin-bottom: 15px;
-  }
-  
-  .form-group label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-  }
-  
-  .form-control {
-    border-radius: 8px;
-    padding: 12px;
-    font-size: 16px;
-    border: 1px solid #ddd;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-    transition: border-color 0.3s ease;
-  }
-  
-  .form-control:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-  }
-  
-  /* Responsive Design */
-  @media screen and (max-width: 768px) {
-    .table {
-      font-size: 12px;
-    }
-  
-    .btn {
-      font-size: 12px;
-      padding: 5px 10px;
-    }
-  
-    .modal-content {
-      width: 100%;
-      margin: 0;
-    }
-  }
-  
+}
