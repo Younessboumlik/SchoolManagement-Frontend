@@ -12,6 +12,8 @@ import ModEvalTable from './tableModEval/tableModEval';
 import TableProfElement from './tableProfElement/tableProfElement';
 import AdminAccountTable from './tableAdminAccount/tableAdminAccount';
 import ModulefTable from "./TableModule"
+// import GestionEtudiants from './tableEtudiant/StudentRegistration';
+import StudentAdmin from './tableEtudiant/StudentAdmin';
 const LayoutWithSidebar = ({ children }) => {
   return (
     <div style={{ display: 'flex' }}>
@@ -47,6 +49,15 @@ function App() {
             element={
               <LayoutWithSidebar>
                 <ModEvalTable />
+               </LayoutWithSidebar>
+            }
+          />
+
+            <Route
+            path="/etudiant"
+            element={
+              <LayoutWithSidebar>
+                <StudentAdmin />
                </LayoutWithSidebar>
             }
           />
