@@ -1,0 +1,57 @@
+/* Cards.css */
+.dashboard-container {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    justify-content: center; /* Centers the cards */
+}
+
+.stat-card {
+    height: 170px;
+    width: 230px; /* Slightly wider for icon + text layout */
+    border-radius: 12px;
+    padding: 1rem 1.5rem; /* Adjust padding */
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+    display: flex; /* Flex layout for icon + content */
+    align-items: center; /* Center align icon and text vertically */
+    gap: 1rem; /* Add space between icon and text */
+}
+
+.stat-card:hover {
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px); /* Adds a hover effect */
+}
+
+.stat-icon {
+    width: 56px; /* Icon size */
+    height: 56px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 1.5rem; /* Icon size */
+    background-color: var(--icon-bg, #1E88E5); /* Dynamic background color */
+    color: white; /* Icon color */
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column; /* Text content in vertical alignment */
+    justify-content: center; /* Center align text */
+}
+
+.stat-content .stat-title {
+    font-size: 1rem; /* Slightly larger title */
+    font-weight: 500;
+    color: #757575;
+    margin-bottom: 0.5rem;
+}
+
+.stat-content .stat-value {
+    font-size: 1.75rem; /* Bigger value text */
+    font-weight: bold;
+    color: #424242;
+}
+
+

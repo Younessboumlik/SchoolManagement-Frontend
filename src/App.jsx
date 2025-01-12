@@ -13,6 +13,7 @@ import TableProfElement from './tableProfElement/tableProfElement';
 import AdminAccountTable from './tableAdminAccount/tableAdminAccount';
 import ModulefTable from "./TableModule"
 // import GestionEtudiants from './tableEtudiant/StudentRegistration';
+import Dashboard from './adminDashboard/dashboard';
 import StudentAdmin from './tableEtudiant/StudentAdmin';
 const LayoutWithSidebar = ({ children }) => {
   return (
@@ -40,6 +41,17 @@ function App() {
               <LayoutWithSidebar>
                 <ProfTable />
                </LayoutWithSidebar>
+            }
+          />
+
+
+          
+            <Route
+            path="/dashboard"
+            element={
+                <LayoutWithSidebar>
+                <Dashboard />
+            </LayoutWithSidebar>
             }
           />
 

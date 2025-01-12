@@ -2,11 +2,14 @@ import React, { useState, useEffect } from "react";
 import Modal from "react-bootstrap/Modal";
 import "./tableProfElement.css";
 import Select from 'react-select';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 function ElementModuleTable() {
     const [TElementModule, setTElementModule] = useState([]);
     const [professors, setProfessors] = useState([]);
     const [modules, setModules] = useState([]);
+    const [showStatsModal, setShowStatsModal] = useState(false);
+    const [stats, setStats] = useState([]);
 
     const [moduleModif, setModuleModif] = useState("");
     const [professeurModif, setProfesseurModif] = useState(null);
@@ -24,36 +27,56 @@ function ElementModuleTable() {
     const [errorModalOpen, setErrorModalOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
-       const handleError = (message) => {
+    const handleError = (message) => {
         setErrorMessage(message);
         setErrorModalOpen(true);
-      };
+    };
 
     const handleCloseErrorModal = () => {
         setErrorModalOpen(false);
         setErrorMessage('');
     };
 
-
+    const fetchStats = async () => {
+        try {
+            const response = await fetch('http://localhost:8081/profelement/getProfElementStats');
+            if (!response.ok) {
+                throw new Error('Failed to fetch stats');
+            }
+            const data = await response.json();
+            const sortedData = [...data]
+                .sort((a, b) => a.nombreSModule - b.nombreSModule)
+                .slice(0, 5)
+                .map(item => ({
+                    name: `${item.professeur.nom} ${item.professeur.prenom}`,
+                    modules: item.nombreSModule,
+                    specialite: item.professeur.specialite
+                }));
+            setStats(sortedData);
+        } catch (error) {
+            handleError('Erreur lors de la récupération des statistiques');
+            console.error('Error fetching stats:', error);
+        }
+    };
 
     const fetchData = async () => {
         try {
             const profResponse = await fetch("http://localhost:8081/profelement/getdispoprof");
             const profData = await profResponse.json();
             setProfessors(profData.map(prof => ({
-              value: prof.code,
+                value: prof.code,
                 label: prof.nameProf
             })));
 
             const moduleResponse = await fetch("http://localhost:8081/profelement/getdispoelem");
-             const moduleData = await moduleResponse.json();
+            const moduleData = await moduleResponse.json();
             const mappedModules = moduleData.map((module) => ({
                 value: module.code,
                 label: module.nemodule,
                 coef: module.coef,
                 estValide: module.estValide,
                 nemodule: module.nemodule,
-                 module: module.module,
+                module: module.module,
             }));
             console.log("Modules Fetched:", mappedModules);
             setModules(mappedModules);
@@ -68,7 +91,7 @@ function ElementModuleTable() {
                 code: item.code,
                 profCode: item.prof?.code
             }));
-             console.log("Assignments Fetched:", transformedData);
+            console.log("Assignments Fetched:", transformedData);
             setTElementModule(transformedData);
         } catch (error) {
             console.error("Error fetching data:", error);
@@ -80,19 +103,24 @@ function ElementModuleTable() {
         fetchData();
     }, []);
 
-  const filteredElementModule = TElementModule.filter((elementModule) => {
-    return (
-      elementModule?.module?.toLowerCase().includes(filterModule?.toLowerCase() || '') &&
-      elementModule?.professeur?.toLowerCase().includes(filterProfesseur?.toLowerCase() || '') &&
-      String(elementModule?.coef || '').toLowerCase().includes(filterDescription?.toLowerCase() || '')
-    );
-  });
+    useEffect(() => {
+        if (showStatsModal) {
+            fetchStats();
+        }
+    }, [showStatsModal]);
 
+    const filteredElementModule = TElementModule.filter((elementModule) => {
+        return (
+            elementModule?.module?.toLowerCase().includes(filterModule?.toLowerCase() || '') &&
+            elementModule?.professeur?.toLowerCase().includes(filterProfesseur?.toLowerCase() || '') &&
+            String(elementModule?.coef || '').toLowerCase().includes(filterDescription?.toLowerCase() || '')
+        );
+    });
 
-   const modifier = (index) => {
-       console.log("Setting moduleModif to:", TElementModule[index].module);
+    const modifier = (index) => {
+        console.log("Setting moduleModif to:", TElementModule[index].module);
         setModuleModif(TElementModule[index].module);
-       setProfesseurModif({ label: TElementModule[index].professeur, value: TElementModule[index].profCode });
+        setProfesseurModif({ label: TElementModule[index].professeur, value: TElementModule[index].profCode });
         setIndexModif(index);
         showModal();
     };
@@ -115,13 +143,13 @@ function ElementModuleTable() {
         setProfesseurAdd(null);
     };
 
-     const deleteElementModule = async (index) => {
-      try {
-           const elementToDelete = TElementModule[index];
-              if(!elementToDelete) {
-                  handleError("L'élément à supprimer n'a pas été trouvé.");
-                   return;
-              }
+    const deleteElementModule = async (index) => {
+        try {
+            const elementToDelete = TElementModule[index];
+            if(!elementToDelete) {
+                handleError("L'élément à supprimer n'a pas été trouvé.");
+                return;
+            }
             const response = await fetch("http://localhost:8081/profelement/deleteaffectprofelement", {
                 method: "PUT",
                 headers: {
@@ -138,161 +166,165 @@ function ElementModuleTable() {
             const updatedTElementModule = TElementModule.filter((_, idx) => idx !== index);
             setTElementModule(updatedTElementModule);
 
-            fetchData(); // Refetch data to update the table
+            fetchData();
         } catch (error) {
-          console.error("Error deleting module:", error);
-          handleError(`Échec de la suppression du module: ${error.message}.`);
+            console.error("Error deleting module:", error);
+            handleError(`Échec de la suppression du module: ${error.message}.`);
         }
     };
 
-   const addElementModule = async () => {
-     if (!moduleAdd) {
-         handleError("Veuillez sélectionner un module.");
-          return;
-          }
-
-      if (!professeurAdd) {
-         handleError("Veuillez sélectionner un professeur.");
-          return;
-      }
-       try {
-        const selectedModule = modules.find((mod) => mod.value === moduleAdd.value);
-       const selectedProfessor = professors.find((prof) => prof.value === professeurAdd.value);
-
-       if (!selectedModule || !selectedProfessor) {
-          handleError("Module ou professeur sélectionné non valide");
-          return;
-     }
-
-         const payload = {
-             professeur: {
-                 code: selectedProfessor.value,
-              },
-           smodule: {
-                 code: selectedModule.value,
-                coef: selectedModule.coef,
-                  description: "Default Description",
-                nemodule: selectedModule.nemodule,
-                   module: {
-                      code:selectedModule.value
-                       }
-                },
-         };
-             const response = await fetch("http://localhost:8081/profelement/affectprofelement", {
-                 method: "POST",
-                headers: {
-                   "Content-Type": "application/json",
-                },
-                 body: JSON.stringify(payload),
-              });
-
-         if (!response.ok) {
-           const errorData = await response.json(); //try to parse the error message
-             let errorMessage = "Échec de l'ajout du module";
-                  if(errorData && errorData.message) {
-                    errorMessage +=  ` Détails: ${errorData.message}`
-                 } else if(errorData && typeof errorData === 'string') {
-                      errorMessage +=  ` Détails: ${errorData}`
-                     }
-
-              throw new Error(errorMessage)
-           }
-         hideModalAdd();
-       fetchData();
-     } catch (error) {
-        console.error("Erreur:", error);
-         handleError(`Échec de l'ajout du module: ${error.message}`);
+    const addElementModule = async () => {
+        if (!moduleAdd) {
+            handleError("Veuillez sélectionner un module.");
+            return;
         }
-    };
 
-  const sauvegarderChanges = async () => {
-      try {
-           const currentElement = TElementModule[indexModif];
-          
-           if (!currentElement) {
-             handleError("Élément actuel introuvable. Veuillez actualiser la page.");
-             return;
-         }
+        if (!professeurAdd) {
+            handleError("Veuillez sélectionner un professeur.");
+            return;
+        }
+        try {
+            const selectedModule = modules.find((mod) => mod.value === moduleAdd.value);
+            const selectedProfessor = professors.find((prof) => prof.value === professeurAdd.value);
 
-      const selectedProfessor = professors.find((prof) => prof.value === professeurModif.value);
-
-        if (!selectedProfessor) {
-                handleError("Le professeur sélectionné n'a pas été trouvé.");
-              return;
-           }
-         const payload = {
-            professeur: {
-                code: selectedProfessor.value
-            },
-           smodule: {
-                code: currentElement.code,
-                coef: currentElement.coef,
-                 coefficient: currentElement.coef,
-                nemodule: currentElement.module,
-                description: "Default Description",
-                 module: {
-                      code: currentElement.code
-                }
+            if (!selectedModule || !selectedProfessor) {
+                handleError("Module ou professeur sélectionné non valide");
+                return;
             }
-          };
-        console.log("Payload being sent:", payload);
 
-       const response = await fetch("http://localhost:8081/profelement/affectprofelement", {
-         method: "POST",
-             headers: {
-               "Content-Type": "application/json",
-             },
-             body: JSON.stringify(payload),
-      });
+            const payload = {
+                professeur: {
+                    code: selectedProfessor.value,
+                },
+                smodule: {
+                    code: selectedModule.value,
+                    coef: selectedModule.coef,
+                    description: "Default Description",
+                    nemodule: selectedModule.nemodule,
+                    module: {
+                        code:selectedModule.value
+                    }
+                },
+            };
+            const response = await fetch("http://localhost:8081/profelement/affectprofelement", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
 
-      if (!response.ok) {
-          const errorData = await response.json();
-              let errorMessage = "Échec de la mise à jour de l'affectation du professeur";
-            if (errorData && errorData.message) {
-                  errorMessage += ` Détails: ${errorData.message}`
+            if (!response.ok) {
+                const errorData = await response.json();
+                let errorMessage = "Échec de l'ajout du module";
+                if(errorData && errorData.message) {
+                    errorMessage += ` Détails: ${errorData.message}`
                 } else if(errorData && typeof errorData === 'string') {
-                      errorMessage += ` Détails: ${errorData}`
-              }
-             throw new Error(errorMessage);
-       }
+                    errorMessage += ` Détails: ${errorData}`
+                }
 
-       hideModal();
-       fetchData();
-     } catch (error) {
-     console.error("Error updating module:", error);
-        handleError(`Échec de la mise à jour de l'affectation du professeur: ${error.message}.`);
+                throw new Error(errorMessage)
+            }
+            hideModalAdd();
+            fetchData();
+        } catch (error) {
+            console.error("Erreur:", error);
+            handleError(`Échec de l'ajout du module: ${error.message}`);
         }
     };
 
+    const sauvegarderChanges = async () => {
+        try {
+            const currentElement = TElementModule[indexModif];
+            
+            if (!currentElement) {
+                handleError("Élément actuel introuvable. Veuillez actualiser la page.");
+                return;
+            }
+
+            const selectedProfessor = professors.find((prof) => prof.value === professeurModif.value);
+
+            if (!selectedProfessor) {
+                handleError("Le professeur sélectionné n'a pas été trouvé.");
+                return;
+            }
+            const payload = {
+                professeur: {
+                    code: selectedProfessor.value
+                },
+                smodule: {
+                    code: currentElement.code,
+                    coef: currentElement.coef,
+                    coefficient: currentElement.coef,
+                    nemodule: currentElement.module,
+                    description: "Default Description",
+                    module: {
+                        code: currentElement.code
+                    }
+                }
+            };
+            console.log("Payload being sent:", payload);
+
+            const response = await fetch("http://localhost:8081/profelement/affectprofelement", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                let errorMessage = "Échec de la mise à jour de l'affectation du professeur";
+                if (errorData && errorData.message) {
+                    errorMessage += ` Détails: ${errorData.message}`
+                } else if(errorData && typeof errorData === 'string') {
+                    errorMessage += ` Détails: ${errorData}`
+                }
+                throw new Error(errorMessage);
+            }
+
+            hideModal();
+            fetchData();
+        } catch (error) {
+            console.error("Error updating module:", error);
+            handleError(`Échec de la mise à jour de l'affectation du professeur: ${error.message}.`);
+        }
+    };
 
     return (
-    <div className="container">
-             <button className="btn btn-info btn-add" onClick={showModalAdd}>
-                Affecter des éléments de module aux professeurs
-            </button>
-           <div className="filter-container">
+        <div className="container">
+            <div className="d-flex justify-content-between mb-3">
+                <button className="btn btn-info btn-add" onClick={showModalAdd}>
+                    Affecter des éléments de module aux professeurs
+                </button>
+                <button className="btn btn-primary" onClick={() => setShowStatsModal(true)}>
+                    Voir les Statistiques
+                </button>
+            </div>
+            <div className="filter-container">
                 <input
-                        type="text"
-                       className="form-control-filter"
-                        placeholder="Filtrer Element"
-                       value={filterModule}
-                      onChange={(e) => setFilterModule(e.target.value)}
-                    />
-                     <input
-                      type="text"
-                        className="form-control-filter"
-                        placeholder="Filtrer Coefficient"
-                      value={filterDescription}
-                      onChange={(e) => setFilterDescription(e.target.value)}
-                 />
-                    <input
-                         type="text"
-                        className="form-control-filter"
-                        placeholder="Filtrer Professeur"
-                      value={filterProfesseur}
-                       onChange={(e) => setFilterProfesseur(e.target.value)}
-                   />
-           </div>
+                    type="text"
+                    className="form-control-filter"
+                    placeholder="Filtrer Element"
+                    value={filterModule}
+                    onChange={(e) => setFilterModule(e.target.value)}
+                />
+                <input
+                    type="text"
+                    className="form-control-filter"
+                    placeholder="Filtrer Coefficient"
+                    value={filterDescription}
+                    onChange={(e) => setFilterDescription(e.target.value)}
+                />
+                <input
+                    type="text"
+                    className="form-control-filter"
+                    placeholder="Filtrer Professeur"
+                    value={filterProfesseur}
+                    onChange={(e) => setFilterProfesseur(e.target.value)}
+                />
+            </div>
 
             <table className="table">
                 <thead>
@@ -322,39 +354,39 @@ function ElementModuleTable() {
                 </tbody>
             </table>
 
-             <Modal show={errorModalOpen} onHide={handleCloseErrorModal}>
+            <Modal show={errorModalOpen} onHide={handleCloseErrorModal}>
                 <Modal.Header className="modal-header-error" closeButton>
                     <Modal.Title>Erreur</Modal.Title>
-                 </Modal.Header>
-                <Modal.Body  className="modal-body-error">
-                     {errorMessage}
-                  </Modal.Body>
-          </Modal>
+                </Modal.Header>
+                <Modal.Body className="modal-body-error">
+                    {errorMessage}
+                </Modal.Body>
+            </Modal>
 
-             <Modal show={isModalOpen} onHide={hideModal}>
+            <Modal show={isModalOpen} onHide={hideModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Modifier un Élément de Module</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <div className="form-group">
-                         <label>Module</label>
+                        <label>Module</label>
                         <input
-                        type="text"
-                        className="form-control"
-                        value={moduleModif}
-                        readOnly //make it read only and disable selection
-                      />
+                            type="text"
+                            className="form-control"
+                            value={moduleModif}
+                            readOnly
+                        />
                     </div>
                     <div className="form-group">
                         <label>Professeur</label>
-                         <Select
-                                      className="form-control"
-                                      value={professeurModif}
-                                      onChange={(selectedOption) => setProfesseurModif(selectedOption)}
-                                      options={professors}
-                                      isSearchable
-                                      placeholder="Choisir un Professeur"
-                                    />
+                        <Select
+                            className="form-control"
+                            value={professeurModif}
+                            onChange={(selectedOption) => setProfesseurModif(selectedOption)}
+                            options={professors}
+                            isSearchable
+                            placeholder="Choisir un Professeur"
+                        />
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
@@ -373,39 +405,88 @@ function ElementModuleTable() {
                 </Modal.Header>
                 <Modal.Body>
                     <div className="form-group">
-                         <label>Module</label>
-                           <Select
-                                      className="form-control"
-                                      value={moduleAdd}
-                                      onChange={(selectedOption) => setModuleAdd(selectedOption)}
-                                      options={modules}
-                                      isSearchable
-                                      placeholder="Choisir un Module"
-                                    />
+                        <label>Module</label>
+                        <Select
+                            className="form-control"
+                            value={moduleAdd}
+                            onChange={(selectedOption) => setModuleAdd(selectedOption)}
+                            options={modules}
+                            isSearchable
+                            placeholder="Choisir un Module"
+                        />
                     </div>
                     <div className="form-group">
-                         <label>Professeur</label>
-                           <Select
-                                      className="form-control"
-                                      value={professeurAdd}
-                                      onChange={(selectedOption) => setProfesseurAdd(selectedOption)}
-                                      options={professors}
-                                      isSearchable
-                                      placeholder="Choisir un Professeur"
-                                    />
-                    </div>
-                </Modal.Body>
-                <Modal.Footer>
-                    <button className="btn btn-secondary" onClick={hideModalAdd}>
-                        Fermer
-                    </button>
-                    <button className="btn btn-primary" onClick={addElementModule}>
-                        Ajouter
-                    </button>
-                </Modal.Footer>
-            </Modal>
-      </div>
-    );
+                        <label>Professeur</label>
+                        <Select
+className="form-control"
+value={professeurAdd}
+onChange={(selectedOption) => setProfesseurAdd(selectedOption)}
+options={professors}
+isSearchable
+placeholder="Choisir un Professeur"
+/>
+</div>
+</Modal.Body>
+<Modal.Footer>
+<button className="btn btn-secondary" onClick={hideModalAdd}>
+Fermer
+</button>
+<button className="btn btn-primary" onClick={addElementModule}>
+Ajouter
+</button>
+</Modal.Footer>
+</Modal>
+
+<Modal show={showStatsModal} onHide={() => setShowStatsModal(false)} size="lg">
+<Modal.Header closeButton>
+<Modal.Title>Top 5 Professeurs - Moins d'Affectations</Modal.Title>
+</Modal.Header>
+<Modal.Body>
+<div className="mb-4">
+<table className="table">
+<thead>
+    <tr>
+        <th>Professeur</th>
+        <th>Spécialité</th>
+        <th>Nombre de Modules</th>
+    </tr>
+</thead>
+<tbody>
+    {stats.map((prof, index) => (
+        <tr key={index}>
+            <td>{prof.name}</td>
+            <td>{prof.specialite}</td>
+            <td>{prof.modules}</td>
+        </tr>
+    ))}
+</tbody>
+</table>
+</div>
+
+<div className="mt-4" style={{ height: '300px' }}>
+<ResponsiveContainer width="100%" height="100%">
+<BarChart data={stats}>
+    <XAxis 
+        dataKey="name"
+        angle={-45}
+        textAnchor="end"
+        height={60}
+    />
+    <YAxis />
+    <Tooltip />
+    <Bar dataKey="modules" fill="#8884d8" name="Nombre de Modules" />
+</BarChart>
+</ResponsiveContainer>
+</div>
+</Modal.Body>
+<Modal.Footer>
+<button className="btn btn-secondary" onClick={() => setShowStatsModal(false)}>
+Fermer
+</button>
+</Modal.Footer>
+</Modal>
+</div>
+);
 }
 
 export default ElementModuleTable;
