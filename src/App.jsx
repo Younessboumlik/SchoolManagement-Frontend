@@ -45,6 +45,14 @@ function App() {
           />
 
 
+<Route
+            path="/"
+            element={
+                <LayoutWithSidebar>
+                <Dashboard />
+            </LayoutWithSidebar>
+            }
+          />
           
             <Route
             path="/dashboard"

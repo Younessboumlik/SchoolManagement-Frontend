@@ -1,108 +1,37 @@
+/* Reset all base containers to full width/height */
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Layout container to use full viewport */
+.layout-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+
+
+/* Container for student admin to fill available space */
 .student-admin-container {
-  max-width: 1000px; /* Set a maximum width for the form container */
-  margin: 20px auto; /* Center the form and provide space around it */
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  margin: 0;
   padding: 20px;
   background-color: #f9f9f9;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.wide-form {
-   max-width: 1200px;
-}
-
-.form-group {
-  margin-bottom: 15px; /* Space between form elements */
-}
-
-.form-group label {
-  display: block; /* Label above the input */
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-.form-control,
-.form-control-filter {
-  width: 100%; /* Full width of the container */
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
   box-sizing: border-box;
-}
-.input-wide {
-   width: 300px;
-   max-width: 300px;
-}
-.form-control-filter {
-  margin-bottom: 10px;
-    display: inline-block;
-    width: calc(50% - 5px); /* Take half the width with a small gap */
-    margin-right: 5px;
-    box-sizing: border-box; /* Include padding and border in element's total width */
-
-}
-.form-control-filter:last-child {
-    margin-right: 0; /* Remove margin from the last filter */
-}
-.filter-container {
-  margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-
+  display: flex;
+  flex-direction: column;
 }
 
-.btn-primary,
-.btn-secondary,
-.btn-danger {
-  margin-right: 10px; /* Space between buttons */
-  padding: 10px 15px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.btn-primary {
-  background-color: #007bff;
-  color: white;
-}
-.btn-secondary {
-  background-color: #6c757d;
-  color: white;
-}
-
-.btn-danger {
-  background-color: #dc3545;
-  color: white;
-}
-.btn-danger:hover {
-    background-color: #bd2130;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-  border: 1px solid #ddd;
-}
-.wide-table {
-   width: 100%;
-   max-width: 1200px;
-}
-.table th,
-.table td {
-  border: 1px solid #ddd;
-  padding: 10px;
-  text-align: left;
-}
-
-.table th {
-  background-color: #f2f2f2;
-  font-weight: bold;
-}
-.modal-header-error {
-    background-color: #f8d7da;
-    border-bottom: 1px solid #f5c6cb;
-}
-.modal-body-error {
-    color: #721c24;
-}

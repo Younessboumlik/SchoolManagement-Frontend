@@ -12,7 +12,7 @@ function StudentAdmin() {
     const [errorMessage, setErrorMessage] = useState("");
     const [filieres, setFilieres] = useState([]);
     const [semestres, setSemestres] = useState([]);
-     const [filterNom, setFilterNom] = useState("");
+    const [filterNom, setFilterNom] = useState("");
     const [filterPrenom, setFilterPrenom] = useState("");
 
     const handleError = (message) => {
@@ -25,7 +25,7 @@ function StudentAdmin() {
         setErrorMessage('');
     };
 
-   const fetchData = async () => {
+    const fetchData = async () => {
         try {
             const filiereResponse = await fetch("http://localhost:8081/filiere/getfilieres");
             const filiereData = await filiereResponse.json();
@@ -61,47 +61,47 @@ function StudentAdmin() {
                     body: JSON.stringify(payload),
                 });
 
-              if (response.ok) {
-                if (response.status === 204) {
-                   setEtudiants([]);
-                    console.log("No students found for the selected filter.");
-                 } else {
-                      try {
-                          const etudiantData = await response.json();
-                           if (etudiantData && etudiantData.length > 0) {
+                if (response.ok) {
+                    if (response.status === 204) {
+                        setEtudiants([]);
+                        console.log("No students found for the selected filter.");
+                    } else {
+                        try {
+                            const etudiantData = await response.json();
+                            if (etudiantData && etudiantData.length > 0) {
                                 setEtudiants(etudiantData);
                             } else {
                                 setEtudiants([]);
                                 console.log("No students found for the selected filter.");
                             }
                         } catch (jsonError) {
-                             setEtudiants([]);
+                            setEtudiants([]);
                             console.log("No data found or invalid json");
                         }
-                 }
-            } else if (response.status === 500) {
-                setEtudiants([]);
-                 console.log("Error 500.");
-               handleError("Erreur côté serveur, veuillez réessayer plus tard.")
-           } else {
-                throw new Error("Error fetching students data");
+                    }
+                } else if (response.status === 500) {
+                    setEtudiants([]);
+                    console.log("Error 500.");
+                    handleError("Erreur côté serveur, veuillez réessayer plus tard.");
+                } else {
+                    throw new Error("Error fetching students data");
+                }
             }
+        } catch (error) {
+            console.error("Error fetching data:", error);
+            handleError("Échec de la récupération des données initiales. Veuillez réessayer plus tard.");
         }
-    } catch (error) {
-        console.error("Error fetching data:", error);
-        handleError("Échec de la récupération des données initiales. Veuillez réessayer plus tard.");
-    }
-};
+    };
 
     useEffect(() => {
         fetchData();
     }, [selectedFiliere, selectedSemestre]);
 
     const filteredEtudiants = etudiants.filter((etudiant) => {
-         const nomFilter = filterNom.toLowerCase();
-         const prenomFilter = filterPrenom.toLowerCase();
+        const nomFilter = filterNom.toLowerCase();
+        const prenomFilter = filterPrenom.toLowerCase();
         return (
-             etudiant?.nom?.toLowerCase().includes(nomFilter) &&
+            etudiant?.nom?.toLowerCase().includes(nomFilter) &&
             etudiant?.prenom?.toLowerCase().includes(prenomFilter)
         );
     });
@@ -109,20 +109,20 @@ function StudentAdmin() {
     const handleFiliereSelect = (selectedOption) => {
         setSelectedFiliere(selectedOption);
         setSelectedSemestre(null);
-         setNewEtudiants([{ nom: '', prenom: '' }]);
+        setNewEtudiants([{ nom: '', prenom: '' }]);
     };
 
     const handleSemestreSelect = (selectedOption) => {
         setSelectedSemestre(selectedOption);
-         setNewEtudiants([{ nom: '', prenom: '' }]);
+        setNewEtudiants([{ nom: '', prenom: '' }]);
     };
 
-     const handleAddEtudiantRow = () => {
-    if (newEtudiants.some(etudiant => etudiant.nom === '' || etudiant.prenom === '')) {
-      handleError("Veuillez remplir tous les champs de l'étudiant avant d'ajouter une nouvelle ligne.");
-      return;
+    const handleAddEtudiantRow = () => {
+        if (newEtudiants.some(etudiant => etudiant.nom === '' || etudiant.prenom === '')) {
+            handleError("Veuillez remplir tous les champs de l'étudiant avant d'ajouter une nouvelle ligne.");
+            return;
         }
-         setNewEtudiants([...newEtudiants, { nom: '', prenom: '' }]);
+        setNewEtudiants([...newEtudiants, { nom: '', prenom: '' }]);
     };
 
     const handleNewEtudiantChange = (index, e) => {
@@ -140,14 +140,14 @@ function StudentAdmin() {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                  id: etudiantId
+                    id: etudiantId
                 })
             });
-    
+
             if (!response.ok) {
                 throw new Error("Échec de la suppression de l'étudiant");
             }
-    
+
             const updatedEtudiants = etudiants.filter(etudiant => etudiant.id !== etudiantId);
             setEtudiants(updatedEtudiants);
         } catch (error) {
@@ -155,36 +155,37 @@ function StudentAdmin() {
             handleError(`Échec de la suppression de l'étudiant : ${error.message}.`);
         }
     };
-     const handleUpdateEtudiant = async (etudiant) => {
-      try {
+
+    const handleUpdateEtudiant = async (etudiant) => {
+        try {
             const response = await fetch("http://localhost:8081/etudiant/updateetudiant", {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(etudiant),
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(etudiant),
             });
-    
+
             if (!response.ok) {
                 const errorData = await response.json();
-               let errorMessage = "Échec de la modification de l'étudiant";
-               if (errorData && errorData.message) {
-                   errorMessage += ` Détails: ${errorData.message}`;
-               } else if (errorData && typeof errorData === 'string') {
-                   errorMessage += ` Détails: ${errorData}`;
-               }
-              throw new Error(errorMessage);
+                let errorMessage = "Échec de la modification de l'étudiant";
+                if (errorData && errorData.message) {
+                    errorMessage += ` Détails: ${errorData.message}`;
+                } else if (errorData && typeof errorData === 'string') {
+                    errorMessage += ` Détails: ${errorData}`;
+                }
+                throw new Error(errorMessage);
             }
-    
-            const updatedEtudiants = etudiants.map((e) => e.id === etudiant.id ? {...etudiant, isEditing: false} : e)
+
+            const updatedEtudiants = etudiants.map((e) => e.id === etudiant.id ? { ...etudiant, isEditing: false } : e);
             setEtudiants(updatedEtudiants);
         } catch (error) {
             console.error("Error updating student:", error);
             handleError(`Échec de la modification de l'étudiant : ${error.message}.`);
         }
-      };
+    };
 
-   const handleSaveAllEtudiants = async () => {
+    const handleSaveAllEtudiants = async () => {
         if (newEtudiants.length === 0 || newEtudiants.some(etudiant => etudiant.nom === '' || etudiant.prenom === '')) {
             handleError("Aucun nouvel étudiant à enregistrer ou un champ est vide.");
             return;
@@ -204,9 +205,8 @@ function StudentAdmin() {
                 body: JSON.stringify(newEtudiants),
             });
 
-           if (!response.ok) {
-               if(response.status === 500)
-                {
+            if (!response.ok) {
+                if (response.status === 500) {
                     handleError("Veuillez ajouter un sous-module pour les modules de cette filière et ce semestre.");
                 } else {
                     const errorData = await response.json();
@@ -216,22 +216,22 @@ function StudentAdmin() {
                     } else if (errorData && typeof errorData === 'string') {
                         errorMessage += ` Détails: ${errorData}`;
                     }
-                   throw new Error(errorMessage);
-                 }
+                    throw new Error(errorMessage);
+                }
             }
 
-             setNewEtudiants([{ nom: '', prenom: '' }]);
+            setNewEtudiants([{ nom: '', prenom: '' }]);
             fetchData();
         } catch (error) {
-             console.error("Erreur:", error);
+            console.error("Erreur:", error);
             handleError(`Échec de l'ajout des étudiants : ${error.message}`);
         }
     };
+
     const handleDeleteNewEtudiantRow = (indexToDelete) => {
         const updatedEtudiants = newEtudiants.filter((_, index) => index !== indexToDelete);
         setNewEtudiants(updatedEtudiants);
     };
-
 
     return (
         <div className="student-admin-container wide-form">
@@ -264,28 +264,26 @@ function StudentAdmin() {
 
             {selectedFiliere && selectedSemestre && (
                 <>
-                      <div className="filter-container">
-                         <input
-                             type="text"
-                             className="form-control-filter"
-                             placeholder="Filtrer par Nom"
-                             value={filterNom}
-                             onChange={(e) => setFilterNom(e.target.value)}
-                         />
-                            <input
-                             type="text"
-                             className="form-control-filter"
-                             placeholder="Filtrer par Prénom"
-                             value={filterPrenom}
-                             onChange={(e) => setFilterPrenom(e.target.value)}
-                           />
+                    <div className="filter-container">
+                        <input
+                            type="text"
+                            className="form-control-filter"
+                            placeholder="Filtrer par Nom"
+                            value={filterNom}
+                            onChange={(e) => setFilterNom(e.target.value)}
+                        />
+                        <input
+                            type="text"
+                            className="form-control-filter"
+                            placeholder="Filtrer par Prénom"
+                            value={filterPrenom}
+                            onChange={(e) => setFilterPrenom(e.target.value)}
+                        />
                     </div>
 
-
-                    <button className="btn btn-primary" onClick={handleSaveAllEtudiants}  disabled={newEtudiants.length === 0 || newEtudiants.some(etudiant => etudiant.nom === '' || etudiant.prenom === '')} >
+                    <button className="btn btn-primary" onClick={handleSaveAllEtudiants} disabled={newEtudiants.length === 0 || newEtudiants.some(etudiant => etudiant.nom === '' || etudiant.prenom === '')} >
                         Sauvegarder
                     </button>
-
                     <table className="table wide-table">
                         <thead>
                             <tr>
@@ -297,80 +295,80 @@ function StudentAdmin() {
                         </thead>
                         <tbody>
                             {filteredEtudiants.map((etudiant) => (
-                                 <tr key={etudiant.id}>
+                                <tr key={etudiant.id}>
                                     <td>{etudiant.id}</td>
                                     <td>
                                         {etudiant.isEditing ? (
-                                              <input
+                                            <input
                                                 type="text"
-                                                 className="form-control input-wide"
-                                                 value={etudiant.nom}
-                                                   onChange={(e) => {
-                                                      const updatedEtudiant = { ...etudiant, nom: e.target.value };
-                                                        setEtudiants(
-                                                            etudiants.map((s) =>
-                                                              s.id === etudiant.id ? updatedEtudiant : s
-                                                            )
-                                                        );
-                                                    }}
-                                              />
-                                            ) : (
+                                                className="form-control input-wide"
+                                                value={etudiant.nom}
+                                                onChange={(e) => {
+                                                    const updatedEtudiant = { ...etudiant, nom: e.target.value };
+                                                    setEtudiants(
+                                                        etudiants.map((s) =>
+                                                            s.id === etudiant.id ? updatedEtudiant : s
+                                                        )
+                                                    );
+                                                }}
+                                            />
+                                        ) : (
                                             etudiant.nom
                                         )}
                                     </td>
-                                      <td>
-                                       {etudiant.isEditing ? (
-                                          <input
-                                            type="text"
-                                            className="form-control input-wide"
-                                           value={etudiant.prenom}
-                                             onChange={(e) => {
-                                                 const updatedEtudiant = { ...etudiant, prenom: e.target.value };
-                                                   setEtudiants(
-                                                      etudiants.map((s) =>
-                                                           s.id === etudiant.id ? updatedEtudiant : s
-                                                      )
-                                                  );
-                                              }}
-                                       />
-                                    ) : (
-                                        etudiant.prenom
-                                     )}
-                                      </td>
-                                      <td>
-                                       {etudiant.isEditing ? (
-                                         <button
-                                           onClick={async () => {
-                                            await handleUpdateEtudiant(etudiant);
-                                          }}
-                                            className="btn btn-success"
-                                        >
-                                          <i className="fa-solid fa-check"></i>
-                                        </button>
+                                    <td>
+                                        {etudiant.isEditing ? (
+                                            <input
+                                                type="text"
+                                                className="form-control input-wide"
+                                                value={etudiant.prenom}
+                                                onChange={(e) => {
+                                                    const updatedEtudiant = { ...etudiant, prenom: e.target.value };
+                                                    setEtudiants(
+                                                        etudiants.map((s) =>
+                                                            s.id === etudiant.id ? updatedEtudiant : s
+                                                        )
+                                                    );
+                                                }}
+                                            />
                                         ) : (
-                                        <>
-                                             <button onClick={()=> setEtudiants(etudiants.map((e)=> e.id === etudiant.id? {...e, isEditing: true}: e))}  className="btn btn-primary">
-                                             <i className="fa-solid fa-pen-to-square"></i>
-                                        </button>
-                                        <button onClick={() => deleteEtudiant(etudiant.id)} className="btn btn-danger">
-                                            <i className="fa-solid fa-trash"></i>
-                                        </button>
-                                        </>
+                                            etudiant.prenom
+                                        )}
+                                    </td>
+                                    <td>
+                                        {etudiant.isEditing ? (
+                                            <button
+                                                onClick={async () => {
+                                                    await handleUpdateEtudiant(etudiant);
+                                                }}
+                                                className="btn btn-success"
+                                            >
+                                                <i className="fa-solid fa-check"></i>
+                                            </button>
+                                        ) : (
+                                            <>
+                                                <button onClick={() => setEtudiants(etudiants.map((e) => e.id === etudiant.id ? { ...e, isEditing: true } : e))} className="btn btn-primary">
+                                                    <i className="fa-solid fa-pen-to-square"></i>
+                                                </button>
+                                                <button onClick={() => deleteEtudiant(etudiant.id)} className="btn btn-danger">
+                                                    <i className="fa-solid fa-trash"></i>
+                                                </button>
+                                            </>
                                         )}
                                     </td>
                                 </tr>
                             ))}
-                             {newEtudiants.map((newEtudiant, index) => (
+                            {newEtudiants.map((newEtudiant, index) => (
                                 <tr key={`new-${index}`}>
                                     <td>-</td>
-                                     <td>
+                                    <td>
                                         <input
-                                             type="text"
-                                             className="form-control input-wide"
-                                             placeholder="Nom"
-                                             name="nom"
-                                             value={newEtudiant.nom}
-                                             onChange={(e) => handleNewEtudiantChange(index, e)}
+                                            type="text"
+                                            className="form-control input-wide"
+                                            placeholder="Nom"
+                                            name="nom"
+                                            value={newEtudiant.nom}
+                                            onChange={(e) => handleNewEtudiantChange(index, e)}
                                         />
                                     </td>
                                     <td>
@@ -379,26 +377,24 @@ function StudentAdmin() {
                                             className="form-control input-wide"
                                             placeholder="Prénom"
                                             name="prenom"
-                                             value={newEtudiant.prenom}
-                                             onChange={(e) => handleNewEtudiantChange(index, e)}
+                                            value={newEtudiant.prenom}
+                                            onChange={(e) => handleNewEtudiantChange(index, e)}
                                         />
-                                     
                                     </td>
-                                       <td>
-                                            <button  className="btn btn-danger" onClick={() => handleDeleteNewEtudiantRow(index)}>
-                                           <i className="fa-solid fa-trash"></i>
-                                       </button>
+                                    <td>
+                                        <button className="btn btn-danger" onClick={() => handleDeleteNewEtudiantRow(index)}>
+                                            <i className="fa-solid fa-trash"></i>
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
-                                { newEtudiants.length === 0 || newEtudiants.some(etudiant => etudiant.nom === '' || etudiant.prenom === '')?   <tr>
+                            <tr>
                                 <td colSpan="4">
                                     <button className="btn btn-secondary" onClick={handleAddEtudiantRow}>
                                         +
                                     </button>
                                 </td>
-                            </tr> : null}
-                        
+                            </tr>
                         </tbody>
                     </table>
                 </>
